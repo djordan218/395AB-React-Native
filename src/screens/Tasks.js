@@ -110,7 +110,64 @@ export default function Tasks() {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
-              onPress={() => console.log('pressed')}
+              onPress={() => {
+                console.log(t.status);
+                if (t.status === false) {
+                  Alert.alert(
+                    'Update task?',
+                    'Are you sure you want to update this task?',
+                    [
+                      {
+                        text: 'Cancel',
+                        onPress: () => console.log('Cancel Pressed'),
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Mark Complete',
+                        onPress: async () => {
+                          await supabase
+                            .from('tasks')
+                            .update({
+                              status: true,
+                            })
+                            .eq('id', t.id)
+                            .then((response) => {
+                              console.log(response);
+                            });
+                          Alert.alert('Task marked complete.');
+                        },
+                      },
+                    ]
+                  );
+                } else {
+                  Alert.alert(
+                    'Mark as incomplete?',
+                    'Are you sure you want to update this task to incomplete?',
+                    [
+                      {
+                        text: 'Cancel',
+                        onPress: () => console.log('Cancel Pressed'),
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Mark Complete',
+                        onPress: async () => {
+                          await supabase
+                            .from('tasks')
+                            .update({
+                              status: false,
+                            })
+                            .eq('id', t.id)
+                            .then((response) => {
+                              console.log(response);
+                            });
+                          Alert.alert('Task marked incomplete.');
+                        },
+                      },
+                    ]
+                  );
+                }
+              }}
             >
               <Button
                 mode="contained"
