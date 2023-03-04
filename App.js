@@ -35,6 +35,7 @@ export default function App() {
   const [homeWebViewValue, setHomeWebViewValue] = useState(1);
   const [scheduleWebViewValue, setScheduleWebViewValue] = useState(1);
   const [newsletterWebViewValue, setNewsletterWebViewValue] = useState(1);
+  const [userTasks, setUserTasks] = useState('');
 
   // checking users table and saving all to state
   const saveRosterToState = async () => {
@@ -82,6 +83,18 @@ export default function App() {
       });
   };
 
+  // saves tasks assigned to user to state - from DB
+  const saveTasksToState = async (soldier) => {
+    const id = JSON.parse(soldier).id;
+    await supabase
+      .from('tasks')
+      .select(`task, description, status, created_at`)
+      .eq('soldier_id', id)
+      .then((response) => {
+        setUserTasks(response.data);
+      });
+  };
+
   // formats display name "SFC Daniel Jordan"
   const formatDisplayName = (soldierData) => {
     const displayName =
@@ -107,6 +120,16 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    console.log('running session useEffect');
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
   // if '395soldier' is in AsyncStorage
   // saves FAQ data & sets to state
   // saves email roster & sets to state
@@ -127,7 +150,6 @@ export default function App() {
           saveCommonContactsToState();
           formatDisplayName(soldierData);
           formatUserRank(soldierData);
-
           await supabase
             .from('users')
             .select()
@@ -136,11 +158,11 @@ export default function App() {
               const soldier = JSON.stringify(response.data[0]);
               if (soldier !== undefined) {
                 setUserData(soldier);
+                saveTasksToState(soldier);
               } else {
                 console.log('did not find the soldier..');
               }
             });
-          // setUserData(soldierData);
           setSignedIn(true);
         } catch (e) {
           console.log(e);
@@ -155,16 +177,6 @@ export default function App() {
     }
     setInfoLoaded(true);
   };
-
-  useEffect(() => {
-    console.log('running session useEffect');
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-  }, []);
 
   useEffect(() => {
     loadData();
@@ -211,6 +223,8 @@ export default function App() {
           setScheduleWebViewValue,
           newsletterWebViewValue,
           setNewsletterWebViewValue,
+          userTasks,
+          setUserTasks,
         }}
       >
         <NavigationContainer>

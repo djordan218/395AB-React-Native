@@ -15,6 +15,8 @@ import CommonLinks from './CommonLinks';
 import CommonContacts from './CommonContacts';
 import Roster from './Roster';
 import Schedule from './Schedule';
+import TaskManagement from './TaskManagement';
+import Tasks from './Tasks';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, Image } from 'react-native';
@@ -169,6 +171,40 @@ const isAdmin = () => {
             <MaterialCommunityIcons name="home" size={24} color="black" />
           ),
           drawerLabel: 'Home',
+          headerStyle: {
+            height: 100,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  setHomeWebViewValue(homeWebViewValue + 1);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="My Tasks"
+        component={Tasks}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="clipboard-check-outline"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'My Tasks',
           headerStyle: {
             height: 100,
           },
@@ -347,6 +383,40 @@ const isAdmin = () => {
             borderBottomWidth: 2,
           },
           headerTitle: '',
+        }}
+      />
+      <Drawer.Screen
+        name="Task Management"
+        component={TaskManagement}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="clipboard-account-outline"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'Task Management',
+          headerStyle: {
+            height: 100,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  setHomeWebViewValue(homeWebViewValue + 1);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
         }}
       />
       <Drawer.Screen
