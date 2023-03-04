@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "395AB",
+    "slug": "395AB",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/63rd.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.djordan218.395AB"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/63rd.png",
+        "backgroundColor": "#ffffff"
+      },
+      "softwareKeyboardLayoutMode": "pan",
+      "package": "com.djordan218.threeninefive"
+    },
+    "web": {
+      "favicon": "./assets/63rd.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d710f2f8-a430-40e6-8a70-85ec307eed2b"
+      }
+    }
+  }
+}
