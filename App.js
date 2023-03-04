@@ -84,16 +84,16 @@ export default function App() {
   };
 
   // saves tasks assigned to user to state - from DB
-  const saveTasksToState = async (soldier) => {
-    const id = JSON.parse(soldier).id;
-    await supabase
-      .from('tasks')
-      .select(`task, description, status, created_at`)
-      .eq('soldier_id', id)
-      .then((response) => {
-        setUserTasks(response.data);
-      });
-  };
+  // const saveTasksToState = async (soldier) => {
+  //   const id = JSON.parse(soldier).id;
+  //   await supabase
+  //     .from('tasks')
+  //     .select(`task, description, status, created_at`)
+  //     .eq('soldier_id', id)
+  //     .then((response) => {
+  //       setUserTasks(response.data);
+  //     });
+  // };
 
   // formats display name "SFC Daniel Jordan"
   const formatDisplayName = (soldierData) => {
@@ -158,7 +158,7 @@ export default function App() {
               const soldier = JSON.stringify(response.data[0]);
               if (soldier !== undefined) {
                 setUserData(soldier);
-                saveTasksToState(soldier);
+                // saveTasksToState(soldier);
               } else {
                 console.log('did not find the soldier..');
               }

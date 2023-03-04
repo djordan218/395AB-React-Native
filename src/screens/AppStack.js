@@ -193,7 +193,7 @@ const isAdmin = () => {
           },
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="My Tasks"
         component={Tasks}
         options={{
@@ -226,7 +226,7 @@ const isAdmin = () => {
             );
           },
         }}
-      />
+      /> */}
       <Drawer.Screen
         name="Schedule"
         component={Schedule}
@@ -385,7 +385,7 @@ const isAdmin = () => {
           headerTitle: '',
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="Task Management"
         component={TaskManagement}
         options={{
@@ -418,7 +418,7 @@ const isAdmin = () => {
             );
           },
         }}
-      />
+      /> */}
       <Drawer.Screen
         name="Soldier Management"
         component={SoldierManagement}
