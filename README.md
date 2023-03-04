@@ -33,3 +33,8 @@ As a member of the 395th Army Band we meet once a month and two weeks over the s
 - If your email is in the 395th's roster, then you will be able to register
 - Once a registered user, you will have access to up to date announcements, schedules, newsletters, a FAQ, and common contacts used for military benefits and resources.
 - If an admin, you will be able to edit any Soldier's information, common contacts, FAQ information, as well as the email roster that allows for users to register.
+
+## Demo
+
+- Logging in
+  ![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%207.GIF)
