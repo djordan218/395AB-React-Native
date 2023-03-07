@@ -120,22 +120,23 @@ export default function RegisterForm({ navigation }) {
   // encodes password and inserts register form data into users table
   // saves data to asyncstorage
   const checkEmailRosterAndRegister = async (values) => {
-    console.log('checking email roster');
+    const civilianEmail = values.civEmail.toLowerCase();
+    const militaryEmail = values.milEmail.toLowerCase();
     // checking for civilian email
     const civEmailCheck = await supabase
       .from('emailRoster')
       .select(`civEmail`)
-      .eq('civEmail', values.civEmail);
+      .eq('civEmail', civilianEmail);
 
     const milEmailCheck = await supabase
       .from('emailRoster')
       .select(`milEmail`)
-      .eq('milEmail', values.milEmail);
+      .eq('milEmail', militaryEmail);
 
     if (civEmailCheck.data[0] || milEmailCheck.data[0]) {
       console.log('passed email check');
       const { data, error } = await supabase.auth.signUp({
-        email: values.civEmail,
+        email: civilianEmail,
         password: values.password,
       });
       if (error) return Alert.alert(error.message);
@@ -144,8 +145,8 @@ export default function RegisterForm({ navigation }) {
         .from('users')
         .insert({
           id: data.user.id,
-          civEmail: values.civEmail,
-          milEmail: values.milEmail,
+          civEmail: civilianEmail,
+          milEmail: militaryEmail,
           password: Base64.encode(values.password),
           rank: values.rank,
           firstName: values.firstName,
