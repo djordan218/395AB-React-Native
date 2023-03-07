@@ -399,7 +399,6 @@ const App = () => {
                         label="What is the common question?"
                         placeholder="Must be a question"
                         placeholderTextColor="grey"
-                        autoCapitalize="none"
                         value={values.question}
                         onChangeText={handleChange('question')}
                       />
@@ -436,7 +435,6 @@ const App = () => {
                         label="What's the answer"
                         placeholder="Required"
                         placeholderTextColor="grey"
-                        autoCapitalize="none"
                         value={values.answer}
                         onChangeText={handleChange('answer')}
                       />
