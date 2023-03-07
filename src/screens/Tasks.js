@@ -40,6 +40,7 @@ export default function Tasks() {
       .from('tasks')
       .update({
         status: !task.status,
+        completed_on: new Date().toLocaleDateString(),
       })
       .eq('id', task.id)
       .then((response) => {
