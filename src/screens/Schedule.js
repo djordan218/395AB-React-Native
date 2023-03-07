@@ -2,6 +2,8 @@ import * as React from 'react';
 import { WebView } from 'react-native-webview';
 import UserContext from '../../hooks/UserContext';
 
+// this displays the schedule with FY BA and AT data
+// just a Google Doc that is pulled into the Webview
 export default function Schedule() {
   const { scheduleWebViewValue, setScheduleWebViewValue } =
     React.useContext(UserContext);

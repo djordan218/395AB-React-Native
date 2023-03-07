@@ -1,12 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View } from 'react-native-animatable';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, Alert, Image } from 'react-native';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
   DrawerItemList,
   DrawerItem,
 } from '@react-navigation/drawer';
+import { Badge } from 'react-native-paper';
 import Home from './Home';
 import FAQScreen from './FAQScreen';
 import Profile from './Profile';
@@ -19,7 +20,6 @@ import TaskManagement from './TaskManagement';
 import Tasks from './Tasks';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert, Image } from 'react-native';
 import UserContext from '../../hooks/UserContext';
 import * as RankImage from '../components/RankImages';
 import SoldierManagement from './SoldierManagement';
@@ -31,7 +31,7 @@ import WebView from 'react-native-webview';
 const Drawer = createDrawerNavigator();
 
 function CustomDrawer(props) {
-  const { userData, setSignedIn, userRankImage, displayName } =
+  const { userData, setSignedIn, userRankImage, displayName, userTasks } =
     useContext(UserContext);
   const navigation = useNavigation();
 
@@ -107,6 +107,53 @@ function CustomDrawer(props) {
           {displayName}
         </Text>
       </View>
+      <DrawerItem
+        label="Home"
+        labelStyle={{ color: 'black', fontWeight: 'bold' }}
+        style={{ color: 'black' }}
+        icon={() => (
+          <MaterialCommunityIcons name="home" size={24} color="black" />
+        )}
+        onPress={() => navigation.navigate('395th Army Band')}
+      />
+      <DrawerItem
+        label={() => {
+          return (
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Text style={{ fontWeight: 'bold' }}>My Tasks</Text>
+              {userTasks.length > 0 ? (
+                <Badge
+                  style={{
+                    fontWeight: 'bold',
+                    color: 'white',
+                    fontSize: 12,
+                    backgroundColor: '#d90532',
+                  }}
+                >
+                  {userTasks.length}
+                </Badge>
+              ) : null}
+            </View>
+          );
+        }}
+        labelStyle={{ color: 'black', fontWeight: 'bold' }}
+        style={{ color: 'black' }}
+        icon={() => (
+          <MaterialCommunityIcons
+            name="clipboard-check-outline"
+            size={24}
+            color="black"
+          />
+        )}
+        onPress={() => navigation.navigate('My Tasks')}
+      />
       <DrawerItemList {...props} />
       <DrawerItem
         label="Logout"
@@ -138,6 +185,10 @@ function CustomDrawer(props) {
 
 const isAdmin = () => {
   const {
+    userData,
+    userTasks,
+    setUserTasks,
+    setUnitRoster,
     homeWebViewValue,
     setHomeWebViewValue,
     scheduleWebViewValue,
@@ -145,6 +196,32 @@ const isAdmin = () => {
     newsletterWebViewValue,
     setNewsletterWebViewValue,
   } = useContext(UserContext);
+
+  async function reloadTasks() {
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .eq('civEmail', JSON.parse(userData).civEmail)
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        const soldier = JSON.stringify(response.data[0]);
+        if (soldier !== undefined) {
+          setUserTasks(JSON.parse(soldier).tasks);
+        } else {
+          console.log('did not find the soldier..');
+        }
+      });
+  }
+  async function reloadRoster() {
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .order('lastName', { ascending: true })
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        setUnitRoster(response.data);
+      });
+  }
   return (
     <Drawer.Navigator
       initialRouteName="Home"
@@ -167,6 +244,7 @@ const isAdmin = () => {
         name="395th Army Band"
         component={Home}
         options={{
+          drawerItemStyle: { display: 'none' },
           drawerIcon: () => (
             <MaterialCommunityIcons name="home" size={24} color="black" />
           ),
@@ -197,6 +275,7 @@ const isAdmin = () => {
         name="My Tasks"
         component={Tasks}
         options={{
+          drawerItemStyle: { display: 'none' },
           drawerIcon: () => (
             <MaterialCommunityIcons
               name="clipboard-check-outline"
@@ -214,7 +293,7 @@ const isAdmin = () => {
               <TouchableOpacity
                 style={{ marginRight: 15 }}
                 onPress={() => {
-                  setHomeWebViewValue(homeWebViewValue + 1);
+                  reloadTasks();
                 }}
               >
                 <MaterialCommunityIcons
@@ -406,7 +485,7 @@ const isAdmin = () => {
               <TouchableOpacity
                 style={{ marginRight: 15 }}
                 onPress={() => {
-                  setHomeWebViewValue(homeWebViewValue + 1);
+                  reloadRoster();
                 }}
               >
                 <MaterialCommunityIcons
@@ -440,6 +519,9 @@ const isAdmin = () => {
 
 const isNotAdmin = () => {
   const {
+    userData,
+    setUserTasks,
+    userTasks,
     homeWebViewValue,
     setHomeWebViewValue,
     scheduleWebViewValue,
@@ -448,6 +530,21 @@ const isNotAdmin = () => {
     setNewsletterWebViewValue,
   } = useContext(UserContext);
 
+  async function reloadTasks() {
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .eq('civEmail', JSON.parse(userData).civEmail)
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        const soldier = JSON.stringify(response.data[0]);
+        if (soldier !== undefined) {
+          setUserTasks(JSON.parse(soldier).tasks);
+        } else {
+          console.log('did not find the soldier..');
+        }
+      });
+  }
   return (
     <Drawer.Navigator
       initialRouteName="Home"
@@ -470,6 +567,7 @@ const isNotAdmin = () => {
         name="395th Army Band"
         component={Home}
         options={{
+          drawerItemStyle: { display: 'none' },
           drawerIcon: () => (
             <MaterialCommunityIcons name="home" size={24} color="black" />
           ),
@@ -485,6 +583,41 @@ const isNotAdmin = () => {
                 style={{ marginRight: 15 }}
                 onPress={() => {
                   setHomeWebViewValue(homeWebViewValue + 1);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="My Tasks"
+        component={Tasks}
+        options={{
+          drawerItemStyle: { display: 'none' },
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="clipboard-check-outline"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'My Tasks',
+          headerStyle: {
+            height: 100,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  reloadTasks();
                 }}
               >
                 <MaterialCommunityIcons

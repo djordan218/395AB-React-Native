@@ -56,11 +56,16 @@ export default function LoginForm() {
       .select()
       .eq('civEmail', values.email)
       .then((response) => {
+        console.log(response);
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         const registeredSoldier = response.data[0];
         saveToLocalStorage(registeredSoldier);
       });
   }
 
+  // if a user passes auth, it pulls that data from users table and saves it to asyncstorage
   const saveToLocalStorage = async (values) => {
     const soldierData = {
       civEmail: values.civEmail,
@@ -77,7 +82,7 @@ export default function LoginForm() {
       setUserData(soldierData);
       console.log('profile registered, logging in, saving to asyncstorage');
     } catch (err) {
-      console.log(err);
+      Alert.alert(err);
     }
   };
 
@@ -192,7 +197,6 @@ export default function LoginForm() {
                         .select(`civEmail`)
                         .eq('civEmail', values.email);
                       if (civEmailCheck.data[0]) {
-                        console.log('passed email check');
                         return Alert.alert(
                           'Unfortunately, the only way to do this securely is for an admin to delete you from the app and have you re-register. Please get with the app manager so you can re-register your account.'
                         );

@@ -39,16 +39,22 @@ export default function CommonContacts() {
   const showModalEdit = () => setVisibleEdit(true);
   const hideModalEdit = () => setVisibleEdit(false);
 
+  // used to reset/reload common contact state
+  // used following add/update/delete
   const updateCommonContactState = async (values) => {
     await supabase
       .from('common_contacts')
       .select(`id, contact, description, website, email, phone`)
       .order('contact', { ascending: true })
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         setCommonContacts(response.data);
       });
   };
 
+  // inserts common contact from add form
   const addCommonContactToDB = async (values) => {
     await supabase
       .from('common_contacts')
@@ -60,23 +66,31 @@ export default function CommonContacts() {
         phone: values.phone,
       })
       .then((response) => {
-        console.log(response);
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         updateCommonContactState();
       });
     Alert.alert('Successfully added Common Contact. Thanks for contributing!');
   };
 
+  // deletes common contact based by contact id
   const deleteCommonContactFromDB = async (id) => {
     await supabase
       .from('common_contacts')
       .delete()
       .eq('id', id)
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         updateCommonContactState();
       });
     Alert.alert('Common Contact deleted.');
   };
 
+  // updates common contact from edit form
+  // resets/reloads common contact state
   const updateCommonContactInDB = async (values) => {
     await supabase
       .from('common_contacts')
@@ -89,6 +103,9 @@ export default function CommonContacts() {
       })
       .eq('id', values.id)
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         updateCommonContactState();
       });
     Alert.alert('Common Contact updated.');
@@ -105,6 +122,7 @@ export default function CommonContacts() {
     ),
   });
 
+  // used for loading textinputs with data when opening edit form
   const modalEditData = (data) => {
     setModalData(data);
   };

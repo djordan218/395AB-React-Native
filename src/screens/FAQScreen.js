@@ -73,15 +73,20 @@ const App = () => {
     setModalData(data);
   };
 
+  // queries FAQ table and sets to state
   const saveFAQDataToState = async () => {
     await supabase
       .from('faq')
       .select(`id, question, answer, category`)
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         setFAQData(response.data);
       });
   };
 
+  // adds FAQ question to DB from add form
   const addQuestionToDB = async (values) => {
     await supabase
       .from('faq')
@@ -91,22 +96,31 @@ const App = () => {
         category: values.category,
       })
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         saveFAQDataToState();
       });
     Alert.alert('Successfully added question to the FAQ.');
   };
 
+  // deletes FAQ from FAQ table based on question id
   const deleteQuestionFromDB = async (id) => {
     await supabase
       .from('faq')
       .delete()
       .eq('id', id)
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         saveFAQDataToState();
       });
     Alert.alert('Successfully deleted. RIP.');
   };
 
+  // updates FAQ question from edit form
+  // following update, resets FAQ table to state
   const updateQuestionInDB = async (values) => {
     await supabase
       .from('faq')
@@ -117,7 +131,9 @@ const App = () => {
       })
       .eq('id', values.id)
       .then((response) => {
-        console.log(response);
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         saveFAQDataToState();
       });
     Alert.alert('FAQ updated.');
@@ -226,7 +242,10 @@ const App = () => {
                           textAlign: 'auto',
                         }}
                         multiline={true}
-                        contentStyle={{ color: 'black' }}
+                        contentStyle={{
+                          color: 'black',
+                          textAlignVertical: 'auto',
+                        }}
                         mode="outlined"
                         outlineColor="black"
                         activeOutlineColor="#5e5601"
@@ -407,7 +426,10 @@ const App = () => {
                           color: 'black',
                           textAlign: 'auto',
                         }}
-                        contentStyle={{ color: 'black' }}
+                        contentStyle={{
+                          color: 'black',
+                          textAlignVertical: 'auto',
+                        }}
                         mode="outlined"
                         outlineColor="black"
                         activeOutlineColor="#5e5601"
@@ -543,11 +565,13 @@ const App = () => {
           title="General"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'white',
+            color: 'black',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#5e5601',
+            backgroundColor: '#aaa683',
             margin: -12,
+            borderTopColor: 'black',
+            borderTopWidth: StyleSheet.hairlineWidth,
           }}
         />
         {FAQData.map((f) =>
@@ -643,11 +667,13 @@ const App = () => {
           title="Admin & HR"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'white',
+            color: 'black',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#5e5601',
+            backgroundColor: '#aaa683',
             margin: -12,
+            borderTopColor: 'black',
+            borderTopWidth: StyleSheet.hairlineWidth,
           }}
         />
         {FAQData.map((f) =>
@@ -743,11 +769,13 @@ const App = () => {
           title="Safety & Security"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'white',
+            color: 'black',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#5e5601',
+            backgroundColor: '#aaa683',
             margin: -12,
+            borderTopColor: 'black',
+            borderTopWidth: StyleSheet.hairlineWidth,
           }}
         />
         {FAQData.map((f) =>
@@ -843,11 +871,13 @@ const App = () => {
           title="Training"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'white',
+            color: 'black',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#5e5601',
+            backgroundColor: '#aaa683',
             margin: -12,
+            borderTopColor: 'black',
+            borderTopWidth: StyleSheet.hairlineWidth,
           }}
         />
         {FAQData.map((f) =>
@@ -943,11 +973,13 @@ const App = () => {
           title="Operations"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'white',
+            color: 'black',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#5e5601',
+            backgroundColor: '#aaa683',
             margin: -12,
+            borderTopColor: 'black',
+            borderTopWidth: StyleSheet.hairlineWidth,
           }}
         />
         {FAQData.map((f) =>
@@ -1043,11 +1075,13 @@ const App = () => {
           title="Logistics & Supply"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'white',
+            color: 'black',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#5e5601',
+            backgroundColor: '#aaa683',
             margin: -12,
+            borderTopColor: 'black',
+            borderTopWidth: StyleSheet.hairlineWidth,
           }}
         />
         {FAQData.map((f) =>

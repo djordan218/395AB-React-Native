@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import {
   List,
@@ -28,7 +29,58 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function Tasks() {
-  const { userTasks, setUserTasks } = React.useContext(UserContext);
+  const { userData, setUserData, userTasks, setUserTasks, setUnitRoster } =
+    React.useContext(UserContext);
+
+  // this updates a task
+  // queries and edits the userTask state in case the user edited their own task
+  // then queries and edits Unit Roster state to update the roster with completed task
+  async function updateTask(task) {
+    await supabase
+      .from('tasks')
+      .update({
+        status: !task.status,
+      })
+      .eq('id', task.id)
+      .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
+      });
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .eq('id', JSON.parse(userData).id)
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
+        const soldier = JSON.stringify(response.data[0]);
+        setUserTasks(JSON.parse(soldier).tasks);
+      });
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .order('lastName', { ascending: true })
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
+        setUnitRoster(response.data);
+      });
+  }
+
+  // formatting date from YYYY-MM-DD to MM/DD/YYYY
+  function formatDate(d) {
+    let date = new Date(d);
+    return `Task added on ` + date.toLocaleDateString();
+  }
+
+  // needed this to set the height of window for ternary operator when a user doesn't have a task it displays text info
+  const { width, height } = Dimensions.get('window');
+
   return (
     <SafeAreaView>
       <ScrollView>
@@ -63,59 +115,54 @@ export default function Tasks() {
               fontWeight: 'bold',
               color: 'black',
               fontSize: 20,
-              textAlign: 'center',
               backgroundColor: 'white',
               margin: -8,
             }}
           />
-        </View>
-        {userTasks.map((t) => (
-          <List.Accordion
-            key={t.task}
+          <List.Subheader
+            numberOfLines={100}
             style={{
-              borderColor: 'black',
-              borderWidth: StyleSheet.hairlineWidth,
-              backgroundColor: 'white',
-            }}
-            titleStyle={{
               color: 'black',
-              fontWeight: 500,
+              backgroundColor: 'white',
               textAlign: 'center',
+              marginTop: -15,
             }}
-            titleNumberOfLines={100}
-            left={(props) => (
-              <List.Icon
-                {...props}
-                icon="clipboard-check-outline"
-                color="black"
-              />
-            )}
-            title={t.task}
           >
-            <List.Item
-              description={t.description}
-              descriptionStyle={{
-                color: 'black',
-                marginTop: -15,
-                marginLeft: -60,
-                textAlign: 'center',
-              }}
-              descriptionNumberOfLines={100}
+            When you have completed the task, press the checkbox (it will turn
+            green) to let your leaders know it has been completed.
+          </List.Subheader>
+        </View>
+
+        {userTasks == 0 ? (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'white',
+              height: height,
+            }}
+          >
+            <MaterialCommunityIcons
+              size={50}
+              name={'music-note'}
+              color="#554d07"
             />
+            <Text
+              style={{ fontSize: 20, fontWeight: 'bold', marginBottom: '100%' }}
+            >
+              You have no tasks! Good job!
+            </Text>
+          </View>
+        ) : (
+          userTasks.map((t) => (
             <TouchableOpacity
-              style={{
-                flex: 1,
-                marginLeft: -60,
-                marginBottom: 10,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
+              key={t.task}
               onPress={() => {
-                console.log(t.status);
                 if (t.status === false) {
                   Alert.alert(
-                    'Update task?',
-                    'Are you sure you want to update this task?',
+                    'Update task as completed?',
+                    'Are you sure you want to update this task as completed?',
                     [
                       {
                         text: 'Cancel',
@@ -125,16 +172,7 @@ export default function Tasks() {
                       {
                         text: 'Mark Complete',
                         onPress: async () => {
-                          await supabase
-                            .from('tasks')
-                            .update({
-                              status: true,
-                            })
-                            .eq('id', t.id)
-                            .then((response) => {
-                              console.log(response);
-                            });
-                          Alert.alert('Task marked complete.');
+                          updateTask(t);
                         },
                       },
                     ]
@@ -150,18 +188,9 @@ export default function Tasks() {
                         style: 'cancel',
                       },
                       {
-                        text: 'Mark Complete',
+                        text: 'Mark Incomplete',
                         onPress: async () => {
-                          await supabase
-                            .from('tasks')
-                            .update({
-                              status: false,
-                            })
-                            .eq('id', t.id)
-                            .then((response) => {
-                              console.log(response);
-                            });
-                          Alert.alert('Task marked incomplete.');
+                          updateTask(t);
                         },
                       },
                     ]
@@ -169,21 +198,105 @@ export default function Tasks() {
                 }
               }}
             >
-              <Button
-                mode="contained"
-                title="Submit"
-                labelStyle={{ fontWeight: 'bold', color: 'white' }}
+              <List.Item
                 style={{
-                  backgroundColor: '#5e5601',
-                  width: 200,
+                  borderColor: 'black',
+                  borderWidth: StyleSheet.hairlineWidth,
+                  backgroundColor: 'white',
                 }}
-              >
-                Mark as Complete
-              </Button>
+                titleStyle={{
+                  color: 'black',
+                  fontWeight: 500,
+                }}
+                titleNumberOfLines={100}
+                description={() => {
+                  return (
+                    <Text
+                      style={{
+                        color: 'grey',
+                        fontWeight: 300,
+                        fontSize: 12,
+                        marginTop: 5,
+                      }}
+                    >
+                      {formatDate(t.created_at)}
+                    </Text>
+                  );
+                }}
+                left={() => {
+                  return (
+                    <TouchableOpacity
+                      style={{
+                        justifyContent: 'center',
+                        padding: 5,
+                        marginLeft: 5,
+                      }}
+                      onPress={() => {
+                        if (t.status === false) {
+                          Alert.alert(
+                            'Update task as completed?',
+                            'Are you sure you want to update this task as completed?',
+                            [
+                              {
+                                text: 'Cancel',
+                                onPress: () => console.log('Cancel Pressed'),
+                                style: 'cancel',
+                              },
+                              {
+                                text: 'Mark Complete',
+                                onPress: async () => {
+                                  updateTask(t);
+                                },
+                              },
+                            ]
+                          );
+                        } else {
+                          Alert.alert(
+                            'Mark as incomplete?',
+                            'Are you sure you want to update this task to incomplete?',
+                            [
+                              {
+                                text: 'Cancel',
+                                onPress: () => console.log('Cancel Pressed'),
+                                style: 'cancel',
+                              },
+                              {
+                                text: 'Mark Incomplete',
+                                onPress: async () => {
+                                  updateTask(t);
+                                },
+                              },
+                            ]
+                          );
+                        }
+                      }}
+                    >
+                      <List.Icon
+                        icon="clipboard-check"
+                        color={t.status ? '#554d07' : '#d90532'}
+                      />
+                    </TouchableOpacity>
+                  );
+                }}
+                title={t.task}
+              ></List.Item>
             </TouchableOpacity>
-          </List.Accordion>
-        ))}
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  completeTask: {
+    backgroundColor: '#5e5601',
+    width: 200,
+    marginTop: 10,
+  },
+  incompleteTask: {
+    backgroundColor: 'gray',
+    width: 200,
+    marginTop: 10,
+  },
+});

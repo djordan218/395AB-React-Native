@@ -8,109 +8,116 @@ import {
   KeyboardAvoidingView,
   Image,
   TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  View,
 } from 'react-native';
 import styles from '../../styles';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
+// displays common links, user can click on each link which opens up forms in same webview browser
 function Home({ navigation }) {
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={{
-          flex: 1,
-          backgroundColor: '#fff',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Image
+    <SafeAreaView>
+      <ScrollView>
+        <View
           style={{
-            resizeMode: 'contain',
-            height: 200,
-            width: 200,
-            marginTop: -50,
-          }}
-          source={require('../../assets/63rd.png')}
-        />
-        <Text style={styles.titleText}>Common Links!</Text>
-        <TouchableOpacity
-          style={styles.pwResetBtn}
-          onPress={() => {
-            navigation.navigate('LIKForm');
+            flex: 1,
+            justifyContent: 'center',
+            alignContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'white',
+            marginBottom: 25,
           }}
         >
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
-            Lodging-in-Kind (LIK) Request
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.pwResetBtn}
-          onPress={() => {
-            navigation.navigate('RSTForm');
-          }}
-        >
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
-            Rescheduled Training (RST) Request
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.pwResetBtn}
-          onPress={() => {
-            navigation.navigate('RFOForm');
-          }}
-        >
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
-            Request for Orders (RFO)
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.pwResetBtn}
-          onPress={() => {
-            navigation.navigate('MissionPollOne');
-          }}
-        >
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
-            Mission Poll #1
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.pwResetBtn}
-          onPress={() => {
-            navigation.navigate('MissionPollTwo');
-          }}
-        >
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
-            Mission Poll #2
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.pwResetBtn}
-          onPress={() => {
-            navigation.navigate('AARForm');
-          }}
-        >
-          <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
-            After Action Review (AAR)
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.pwResetBtn}
-          onPress={() => {
-            navigation.navigate('CounselingForm');
-          }}
-        >
-          <Text
+          <Image
             style={{
-              color: 'black',
-              fontWeight: 'bold',
-              fontSize: 16,
+              resizeMode: 'contain',
+              height: 200,
+              width: 200,
+            }}
+            source={require('../../assets/63rd.png')}
+          />
+          <Text style={styles.titleText}>Common Links!</Text>
+          <TouchableOpacity
+            style={styles.pwResetBtn}
+            onPress={() => {
+              navigation.navigate('LIKForm');
             }}
           >
-            Developmental Counseling Form
-          </Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+              Lodging-in-Kind (LIK) Request
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.pwResetBtn}
+            onPress={() => {
+              navigation.navigate('RSTForm');
+            }}
+          >
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+              Rescheduled Training (RST) Request
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.pwResetBtn}
+            onPress={() => {
+              navigation.navigate('RFOForm');
+            }}
+          >
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+              Request for Orders (RFO)
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.pwResetBtn}
+            onPress={() => {
+              navigation.navigate('MissionPollOne');
+            }}
+          >
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+              Mission Poll #1
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.pwResetBtn}
+            onPress={() => {
+              navigation.navigate('MissionPollTwo');
+            }}
+          >
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+              Mission Poll #2
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.pwResetBtn}
+            onPress={() => {
+              navigation.navigate('AARForm');
+            }}
+          >
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+              After Action Review (AAR)
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.pwResetBtn}
+            onPress={() => {
+              navigation.navigate('CounselingForm');
+            }}
+          >
+            <Text
+              style={{
+                color: 'black',
+                fontWeight: 'bold',
+                fontSize: 16,
+              }}
+            >
+              Developmental Counseling Form
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

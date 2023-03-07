@@ -123,6 +123,8 @@ export default function Profile() {
       .required('Password is required'),
   });
 
+  // updates user data in the users table in DB
+  // saves data to asyncstorage
   const updateUserInDB = async (values) => {
     await supabase
       .from('users')
@@ -144,6 +146,8 @@ export default function Profile() {
       });
   };
 
+  // updates user password in users table
+  // this is used when a user updates their password in the user.auth table
   const updateUserTablePasswordInDB = async (password) => {
     await supabase
       .from('users')
@@ -158,6 +162,8 @@ export default function Profile() {
       });
   };
 
+  // saves form data to asyncstorage
+  // this also reloads all of the data in the app
   const saveToAsyncStorage = async (values) => {
     try {
       const soldierData = {

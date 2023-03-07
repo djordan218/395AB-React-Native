@@ -62,16 +62,22 @@ export default function SoldierManagement() {
     lastName: Yup.string().required('Last name is required'),
   });
 
+  // pulls all emails from emailRoster table, saves to state
   const updateEmailRosterState = async (values) => {
     await supabase
       .from('emailRoster')
       .select(`id, civEmail, milEmail, firstName, lastName`)
       .order('lastName', { ascending: true })
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         setEmailRoster(response.data);
       });
   };
 
+  // inserting form data and submitting to DB
+  // reloads and resets emailRoster state
   const addSoldierToEmailRoster = async (values) => {
     await supabase
       .from('emailRoster')
@@ -82,22 +88,31 @@ export default function SoldierManagement() {
         lastName: values.lastName,
       })
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         updateEmailRosterState();
         Alert.alert('Successfully added Soldier to email roster.');
       });
   };
 
+  // deletes Soldier email from emailRoster table
+  // resets emailRoster state
   const deleteSoldierFromEmailRoster = async (id) => {
     await supabase
       .from('emailRoster')
       .delete()
       .eq('id', id)
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         updateEmailRosterState();
         Alert.alert('Deleted. Gone forever. Goodbye.');
       });
   };
 
+  // loads data from edit form, updates emailRoster table and reloads/saves to state
   const updateSoldierInEmailRoster = async (values) => {
     await supabase
       .from('emailRoster')
@@ -109,6 +124,9 @@ export default function SoldierManagement() {
       })
       .eq('id', values.id)
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         updateEmailRosterState();
         Alert.alert('Successfully updated Soldier data.');
       });

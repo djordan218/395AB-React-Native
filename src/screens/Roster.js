@@ -123,12 +123,15 @@ export default function Roster() {
   const showModalEdit = () => setVisibleEdit(true);
   const hideModalEdit = () => setVisibleEdit(false);
 
+  // saves data to modal
+  // used to populate edit form with data of soldier being edited
   const modalEditData = (data) => {
     setValue(data.rank);
     setValueAdmin(data.isAdmin);
     setModalData(data);
   };
 
+  // queries users table and sets info to state
   const updateRosterInState = async (values) => {
     await supabase
       .from('users')
@@ -137,26 +140,31 @@ export default function Roster() {
       )
       .order('lastName', { ascending: true })
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         setUnitRoster(response.data);
       });
   };
 
+  // deletes user from user table as well as user.auth table
   const deleteUser = async (id) => {
     await supabase
       .from('users')
       .delete()
       .eq('id', id)
       .then((response) => {
-        console.log(response);
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         updateRosterInState();
       });
     const { data, error } = await supabase.auth.admin.deleteUser(id);
     Alert.alert('User is gone forever.');
   };
 
+  // updates users table with form info from edit form
   const updateUser = async (values) => {
-    console.log('updating user');
-    console.log(values);
     await supabase
       .from('users')
       .update({
@@ -170,344 +178,15 @@ export default function Roster() {
       })
       .eq('id', values.id)
       .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
         updateRosterInState();
         Alert.alert('Successfully edited Soldier data.');
       });
   };
 
-  const roster = [
-    {
-      id: 1,
-      rank: 'CW2',
-      firstName: 'Jordan',
-      lastName: 'Kinsey',
-      milEmail: 'jordan.e.kinsey.mil@army.mil',
-      civEmail: 'jekinsey22@gmail.com',
-      phone: '847-602-1481',
-      isAdmin: true,
-    },
-    {
-      id: 2,
-      rank: '1SG',
-      firstName: 'Chip',
-      lastName: 'Brewster',
-      milEmail: 'george.w.brewster6.mil@army.mil',
-      civEmail: 'chip.brewster@gmail.com',
-      phone: '847-602-1481',
-      isAdmin: true,
-    },
-    {
-      id: 3,
-      rank: 'SFC',
-      firstName: 'Daniel',
-      lastName: 'Jordan',
-      milEmail: 'daniel.m.jordan.mil@mail.mil',
-      civEmail: 'djordan218@gmail.com',
-      phone: '918-814-4039',
-      isAdmin: true,
-    },
-    {
-      id: 4,
-      rank: 'SFC',
-      firstName: 'Stephanie',
-      lastName: 'Osbourne',
-      milEmail: 'stephanie.m.osbourne.mil@mail.mil',
-      civEmail: 'stephanie.osbourne@gmail.com',
-      phone: '940-782-3187',
-      isAdmin: true,
-    },
-    {
-      id: 5,
-      rank: 'SFC',
-      firstName: 'Jamie',
-      lastName: 'Dubose',
-      milEmail: 'jamie.a.dubose.mil@army.mil',
-      civEmail: 'jsallen1985@gmail.com',
-      phone: '205-531-7031',
-      isAdmin: true,
-    },
-    {
-      id: 6,
-      rank: 'SFC',
-      firstName: 'Steve',
-      lastName: 'Sharp',
-      milEmail: 'steven.r.sharp16.mil@army.mil',
-      civEmail: 'ssharp@bethanyschools.com',
-      phone: '405-602-4997',
-      isAdmin: true,
-    },
-    {
-      id: 7,
-      rank: 'SSG',
-      firstName: 'Robert',
-      lastName: 'Lawson',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 8,
-      rank: 'SSG',
-      firstName: 'Richard',
-      lastName: 'Murrow',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 9,
-      rank: 'SSG',
-      firstName: 'Jenny',
-      lastName: 'Stewart',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 10,
-      rank: 'SSG',
-      firstName: 'Ryan',
-      lastName: 'Neighbors',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 11,
-      rank: 'SSG',
-      firstName: 'Jarod',
-      lastName: 'Willard',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 13,
-      rank: 'SSG',
-      firstName: 'Patrick',
-      lastName: 'Faircloth',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 14,
-      rank: 'SSG',
-      firstName: 'Aaron',
-      lastName: 'Skinner',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 15,
-      rank: 'SSG',
-      firstName: 'Richard',
-      lastName: 'Rivera',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 16,
-      rank: 'SSG',
-      firstName: 'Mickey',
-      lastName: 'Bertelsen',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 17,
-      rank: 'SSG',
-      firstName: 'Sam',
-      lastName: 'Carroll',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 18,
-      rank: 'SGT',
-      firstName: 'Vanessa',
-      lastName: 'Delgado',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 19,
-      rank: 'SGT',
-      firstName: 'Tyler',
-      lastName: 'Tashdjian',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 20,
-      rank: 'SGT',
-      firstName: 'Christina',
-      lastName: 'Calkins',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 21,
-      rank: 'SGT',
-      firstName: 'Bryan',
-      lastName: 'Coager',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 22,
-      rank: 'SGT',
-      firstName: 'Philip',
-      lastName: 'Flick',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 23,
-      rank: 'SGT',
-      firstName: 'Kenny',
-      lastName: 'James',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 24,
-      rank: 'SPC',
-      firstName: 'Charlie',
-      lastName: 'Blomgren',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 25,
-      rank: 'SPC',
-      firstName: 'Daniel',
-      lastName: 'Moreira',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 26,
-      rank: 'SPC',
-      firstName: 'Tlaloc',
-      lastName: 'Perales',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 27,
-      rank: 'SPC',
-      firstName: 'Evan',
-      lastName: 'Wells',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 28,
-      rank: 'SPC',
-      firstName: 'Tatiana',
-      lastName: 'Flores',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 29,
-      rank: 'SPC',
-      firstName: 'Ian',
-      lastName: 'Massey',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 30,
-      rank: 'SPC',
-      firstName: 'Isodoro',
-      lastName: 'Ramos',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 31,
-      rank: 'SPC',
-      firstName: 'Kevin',
-      lastName: 'Cantu',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 32,
-      rank: 'SPC',
-      firstName: 'Chloe',
-      lastName: 'Sutton',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 33,
-      rank: 'SPC',
-      firstName: 'Manchusa',
-      lastName: 'Loungsangroong',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-    {
-      id: 34,
-      rank: 'SPC',
-      firstName: 'Nathaniel',
-      lastName: 'Schoenbaum',
-      milEmail: '',
-      civEmail: '',
-      phone: '',
-      isAdmin: false,
-    },
-  ];
-
+  // sets image of rank left os user name
   const setImg = (rank) => {
     if (rank == '1SG') {
       return All[`SG1`];
@@ -948,7 +627,6 @@ export default function Roster() {
               right={(props) => (
                 <TouchableOpacity
                   onPress={() => {
-                    console.log('sending text!');
                     Linking.openURL(`sms:+1${s.phone}`);
                   }}
                 >

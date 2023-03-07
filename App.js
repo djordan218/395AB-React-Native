@@ -41,10 +41,9 @@ export default function App() {
   const saveRosterToState = async () => {
     await supabase
       .from('users')
-      .select(
-        `id, civEmail, milEmail, rank, firstName, lastName, phone, isAdmin`
-      )
+      .select('*, tasks:tasks(*)')
       .order('lastName', { ascending: true })
+      .order('id', { foreignTable: 'tasks', ascending: true })
       .then((response) => {
         setUnitRoster(response.data);
       });
@@ -83,18 +82,6 @@ export default function App() {
       });
   };
 
-  // saves tasks assigned to user to state - from DB
-  const saveTasksToState = async (soldier) => {
-    const id = JSON.parse(soldier).id;
-    await supabase
-      .from('tasks')
-      .select(`id, task, description, status, created_at`)
-      .eq('soldier_id', id)
-      .then((response) => {
-        setUserTasks(response.data);
-      });
-  };
-
   // formats display name "SFC Daniel Jordan"
   const formatDisplayName = (soldierData) => {
     const displayName =
@@ -120,6 +107,7 @@ export default function App() {
     }
   };
 
+  // sets and loads session data from user.auth table
   useEffect(() => {
     console.log('running session useEffect');
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -143,7 +131,7 @@ export default function App() {
       const soldierData = await AsyncStorage.getItem('395soldier');
       if (soldierData !== null || undefined || '') {
         try {
-          console.log('running with soldier data');
+          console.log('soldier data present, adding things to state');
           saveRosterToState();
           saveFAQDataToState();
           saveEmailRosterToState();
@@ -152,13 +140,14 @@ export default function App() {
           formatUserRank(soldierData);
           await supabase
             .from('users')
-            .select()
+            .select('*, tasks:tasks(*)')
             .eq('civEmail', JSON.parse(soldierData).civEmail)
+            .order('id', { foreignTable: 'tasks', ascending: true })
             .then((response) => {
               const soldier = JSON.stringify(response.data[0]);
               if (soldier !== undefined) {
                 setUserData(soldier);
-                saveTasksToState(soldier);
+                setUserTasks(JSON.parse(soldier).tasks);
               } else {
                 console.log('did not find the soldier..');
               }
@@ -178,10 +167,12 @@ export default function App() {
     setInfoLoaded(true);
   };
 
+  // runs data fetching if signedIn or userData state is changed
   useEffect(() => {
     loadData();
   }, [signedIn, userData]);
 
+  // loading spinner
   if (!infoLoaded) {
     return (
       <PaperProvider>
@@ -192,7 +183,7 @@ export default function App() {
             style={[{ backgroundColor: 'white' }]}
             color={'red'}
             size={'large'}
-          ></ActivityIndicator>
+          />
         </View>
       </PaperProvider>
     );

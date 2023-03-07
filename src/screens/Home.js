@@ -9,6 +9,8 @@ import {
 import { ScrollView } from 'react-native-gesture-handler';
 import UserContext from '../../hooks/UserContext';
 
+// main home page with announcements
+// cropped top of webview to not allow user to go back or navigate and make webview - view only
 export default function Announcements() {
   const { homeWebViewValue, setHomeWebViewValue } =
     React.useContext(UserContext);

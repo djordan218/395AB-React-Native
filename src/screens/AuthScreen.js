@@ -1,12 +1,13 @@
-import React, {useEffect} from 'react';
-import {createDrawerNavigator} from '@react-navigation/drawer';
+import React, { useEffect } from 'react';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import RegisterForm from './RegisterForm';
 import LoginForm from './LoginForm';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {StatusBar} from 'react-native';
+import { StatusBar } from 'react-native';
 
 const Drawer = createDrawerNavigator();
 
+// login and register forms
 export default function AuthScreen() {
   return (
     <>
@@ -21,7 +22,8 @@ export default function AuthScreen() {
             fontWeight: 'bold',
           },
           drawerActiveTintColor: 'black',
-        }}>
+        }}
+      >
         <Drawer.Screen
           name="Login"
           options={{

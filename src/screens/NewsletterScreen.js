@@ -3,6 +3,8 @@ import { WebView } from 'react-native-webview';
 import { View, ActivityIndicator, RefreshControl } from 'react-native';
 import UserContext from '../../hooks/UserContext';
 
+// page that displays the BA newsletter
+// user can reload the newsletter by changing the state
 export default function NewsletterScreen() {
   const { newsletterWebViewValue, setNewsletterWebViewValue } =
     React.useContext(UserContext);
