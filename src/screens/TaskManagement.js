@@ -231,8 +231,8 @@ export default function TaskManagement() {
   // formats date from YYYY-MM-DD to MM/DD/YYYY
   // displayed underneath each task
   function formatDate(d) {
-    let date = new Date(d);
-    return `Task added on ` + date.toLocaleDateString();
+    const date = new Date(d).toLocaleDateString('en-US', { timeZone: 'UTC' });
+    return `Task added on ` + date;
   }
 
   const addTaskSchema = Yup.object().shape({
@@ -303,7 +303,7 @@ export default function TaskManagement() {
               initialValues={{
                 task: '',
                 status: false,
-                created_at: new Date(),
+                created_at: new Date().toLocaleDateString(),
               }}
               onSubmit={(values) => {
                 const soldierId = modalData;
@@ -339,7 +339,14 @@ export default function TaskManagement() {
 
                     <View>
                       <TextInput
-                        style={{ width: 300, backgroundColor: 'white' }}
+                        multiline={true}
+                        style={{
+                          width: 300,
+                          maxHeight: 200,
+                          backgroundColor: 'white',
+                          color: 'black',
+                          textAlign: 'auto',
+                        }}
                         contentStyle={{ color: 'black' }}
                         mode="outlined"
                         outlineColor="black"
@@ -442,7 +449,13 @@ export default function TaskManagement() {
 
                     <View>
                       <TextInput
-                        style={{ width: 300, backgroundColor: 'white' }}
+                        style={{
+                          width: 300,
+                          maxHeight: 200,
+                          backgroundColor: 'white',
+                          color: 'black',
+                          textAlign: 'auto',
+                        }}
                         multiline={true}
                         contentStyle={{ color: 'black' }}
                         mode="outlined"
@@ -559,7 +572,8 @@ export default function TaskManagement() {
                     return (
                       <TouchableOpacity
                         onPress={() => {
-                          formatDate(t.created_at);
+                          saveToModalData(t);
+                          showModalEdit();
                         }}
                       >
                         <Text
