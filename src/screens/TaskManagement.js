@@ -40,6 +40,7 @@ export default function TaskManagement() {
     setUserData,
     userTasks,
     setUserTasks,
+    displayName,
   } = useContext(UserContext);
   const [visibleAdd, setVisibleAdd] = useState(false);
   const [visibleEdit, setVisibleEdit] = useState(false);
@@ -65,6 +66,7 @@ export default function TaskManagement() {
         status: values.status,
         created_at: values.created_at,
         soldier_id: data,
+        added_by: values.added_by,
       })
       .then((response) => {
         if (response.status >= 300) {
@@ -105,6 +107,7 @@ export default function TaskManagement() {
       .from('tasks')
       .update({
         status: !task.status,
+        completed_on: new Date().toLocaleDateString(),
       })
       .eq('id', task.id)
       .then((response) => {
@@ -188,7 +191,6 @@ export default function TaskManagement() {
         if (response.status >= 300) {
           Alert.alert(response.statusText);
         }
-        console.log(response);
       });
     await supabase
       .from('users')
@@ -232,7 +234,7 @@ export default function TaskManagement() {
   // displayed underneath each task
   function formatDate(d) {
     const date = new Date(d).toLocaleDateString('en-US', { timeZone: 'UTC' });
-    return `Task added on ` + date;
+    return date;
   }
 
   const addTaskSchema = Yup.object().shape({
@@ -303,9 +305,11 @@ export default function TaskManagement() {
               initialValues={{
                 task: '',
                 status: false,
+                added_by: displayName,
                 created_at: new Date().toLocaleDateString(),
               }}
               onSubmit={(values) => {
+                console.log(values);
                 const soldierId = modalData;
                 addTaskToSoldier(values, soldierId);
               }}
@@ -413,7 +417,7 @@ export default function TaskManagement() {
             <Formik
               initialValues={{
                 task: modalData.task,
-                status: false,
+                status: modalData.status,
               }}
               onSubmit={(values) => {
                 editTask(values, modalData.id);
@@ -535,31 +539,52 @@ export default function TaskManagement() {
             right={() => {
               if (s.tasks.length > 0) {
                 return (
-                  <Badge
-                    size={25}
+                  <View
                     style={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      fontSize: 15,
-                      backgroundColor: '#d90532',
+                      flex: 1,
+                      flexDirection: 'row',
                     }}
                   >
-                    {s.tasks.length}
-                  </Badge>
+                    <Badge
+                      size={25}
+                      style={{
+                        fontWeight: 'bold',
+                        color: 'white',
+                        fontSize: 15,
+                        backgroundColor: '#554d07',
+                        marginRight: 8,
+                      }}
+                    >
+                      {
+                        s.tasks.filter((x, i) => {
+                          return x.status;
+                        }).length
+                      }
+                    </Badge>
+                    <Badge
+                      size={25}
+                      style={{
+                        fontWeight: 'bold',
+                        color: 'white',
+                        fontSize: 15,
+                        backgroundColor: '#d90532',
+                      }}
+                    >
+                      {
+                        s.tasks.filter((x, i) => {
+                          return !x.status;
+                        }).length
+                      }
+                    </Badge>
+                  </View>
                 );
               } else {
                 return (
-                  <Badge
+                  <MaterialCommunityIcons
+                    name="checkbox-marked-circle-outline"
                     size={25}
-                    style={{
-                      fontWeight: 'bold',
-                      color: 'white',
-                      fontSize: 15,
-                      backgroundColor: '#554d07',
-                    }}
-                  >
-                    {s.tasks.length}
-                  </Badge>
+                    color="#554d07"
+                  />
                 );
               }
             }}
@@ -570,24 +595,40 @@ export default function TaskManagement() {
                 <List.Item
                   description={() => {
                     return (
-                      <TouchableOpacity
-                        onPress={() => {
-                          saveToModalData(t);
-                          showModalEdit();
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: 'grey',
-                            fontWeight: 300,
-                            fontSize: 12,
-                            marginTop: 5,
-                            textAlign: 'center',
+                      <View>
+                        <TouchableOpacity
+                          onPress={() => {
+                            saveToModalData(t);
+                            showModalEdit();
                           }}
                         >
-                          {formatDate(t.created_at)}
-                        </Text>
-                      </TouchableOpacity>
+                          <Text
+                            style={{
+                              color: 'grey',
+                              fontWeight: 300,
+                              fontSize: 12,
+                              marginTop: 5,
+                              textAlign: 'center',
+                            }}
+                          >
+                            Task added on {formatDate(t.created_at)} by{' '}
+                            {t.added_by || 'unknown'}
+                          </Text>
+                          {t.status ? (
+                            <Text
+                              style={{
+                                color: '#554d07',
+                                fontWeight: 300,
+                                fontSize: 12,
+                                marginTop: 5,
+                                textAlign: 'center',
+                              }}
+                            >
+                              Marked complete on {formatDate(t.completed_on)}
+                            </Text>
+                          ) : null}
+                        </TouchableOpacity>
+                      </View>
                     );
                   }}
                   key={t.id}

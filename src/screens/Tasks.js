@@ -75,7 +75,7 @@ export default function Tasks() {
   // formatting date from YYYY-MM-DD to MM/DD/YYYY
   function formatDate(d) {
     const date = new Date(d).toLocaleDateString('en-US', { timeZone: 'UTC' });
-    return `Task added on ` + date;
+    return date;
   }
 
   // needed this to set the height of window for ternary operator when a user doesn't have a task it displays text info
@@ -207,20 +207,38 @@ export default function Tasks() {
                 titleStyle={{
                   color: 'black',
                   fontWeight: 500,
+                  textAlign: 'center',
                 }}
                 titleNumberOfLines={100}
                 description={() => {
                   return (
-                    <Text
-                      style={{
-                        color: 'grey',
-                        fontWeight: 300,
-                        fontSize: 12,
-                        marginTop: 5,
-                      }}
-                    >
-                      {formatDate(t.created_at)}
-                    </Text>
+                    <View>
+                      <Text
+                        style={{
+                          color: 'grey',
+                          fontWeight: 300,
+                          fontSize: 12,
+                          marginTop: 5,
+                          textAlign: 'center',
+                        }}
+                      >
+                        Task added on {formatDate(t.created_at)} by{' '}
+                        {t.added_by || 'unknown'}
+                      </Text>
+                      {t.status ? (
+                        <Text
+                          style={{
+                            color: '#554d07',
+                            fontWeight: 300,
+                            fontSize: 12,
+                            marginTop: 5,
+                            textAlign: 'center',
+                          }}
+                        >
+                          Marked complete on {formatDate(t.completed_on)}
+                        </Text>
+                      ) : null}
+                    </View>
                   );
                 }}
                 left={() => {

@@ -132,7 +132,7 @@ export default function Roster() {
   };
 
   // queries users table and sets info to state
-  const updateRosterInState = async (values) => {
+  const updateRosterInState = async () => {
     await supabase
       .from('users')
       .select(
