@@ -74,8 +74,8 @@ export default function Tasks() {
 
   // formatting date from YYYY-MM-DD to MM/DD/YYYY
   function formatDate(d) {
-    let date = new Date(d);
-    return `Task added on ` + date.toLocaleDateString();
+    const date = new Date(d).toLocaleDateString('en-US', { timeZone: 'UTC' });
+    return `Task added on ` + date;
   }
 
   // needed this to set the height of window for ternary operator when a user doesn't have a task it displays text info
