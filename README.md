@@ -36,10 +36,8 @@ As a member of the 395th Army Band we meet once a month and two weeks over the s
 
 ## Demo
 
-![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%207.GIF)
-![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%206.GIF)
-![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%205.GIF)
-![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%204.GIF)
-![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%203.GIF)
-![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%202.GIF)
-![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%201.GIF)
+- User Demo
+<!-- ![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%207.GIF) -->
+
+- Admin Demo
+<!-- ![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395%20gif%207.GIF) -->
