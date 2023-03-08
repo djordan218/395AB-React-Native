@@ -36,6 +36,6 @@ As a member of the 395th Army Band we meet once a month and two weeks over the s
 
 ## Demo
 
-- User Demo +<img src="/assets/gifs/395UserDemo.gif?raw=true" width="200px">
+- User Demo <img src="/assets/gifs/395UserDemo.gif?raw=true" width="400px">
 
-- Admin Demo +<img src="/assets/gifs/395AdminDemo.gif?raw=true" width="200px">
+- Admin Demo <img src="/assets/gifs/395AdminDemo.gif?raw=true" width="400px">
