@@ -36,8 +36,6 @@ As a member of the 395th Army Band we meet once a month and two weeks over the s
 
 ## Demo
 
-- User Demo
-  ![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395UserDemo.gif)
+- User Demo +<img src="/assets/gifs/395UserDemo.gif?raw=true" width="200px">
 
-- Admin Demo
-  ![](https://github.com/djordan218/395AB-React-Native/blob/main/assets/gifs/395AdminDemo.gif)
+- Admin Demo +<img src="/assets/gifs/395AdminDemo.gif?raw=true" width="200px">
