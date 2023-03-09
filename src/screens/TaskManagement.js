@@ -271,26 +271,73 @@ export default function TaskManagement() {
             marginTop: -10,
           }}
         />
-        <List.Subheader
-          numberOfLines={100}
+        <List.Accordion
           style={{
-            color: 'black',
+            borderTopColor: 'black',
+            borderTopWidth: StyleSheet.hairlineWidth,
             backgroundColor: 'white',
-            textAlign: 'center',
-            marginTop: -15,
+            marginTop: -8,
+            height: 50,
           }}
+          titleStyle={{
+            color: 'black',
+            fontWeight: 700,
+            textAlign: 'center',
+            marginRight: -45,
+          }}
+          title="INSTRUCTIONS"
         >
-          Here you can add and update tasks for individual Soldiers. This will
-          show up in their "My Tasks" section in their profile.
-          {'\n'}
-          {'\n'}Once a soldier has marked the task complete - the check will
-          turn green.{'\n'}
-          {'\n'}You can delete the task from their list at any time by pressing
-          on the trashcan. This will remove the task.
-          {'\n'}
-          {'\n'}You can edit the task by clicking on the text and submitting the
-          edit.
-        </List.Subheader>
+          <List.Item
+            style={{ backgroundColor: 'white', padding: 10, marginTop: -12 }}
+            title={() => {
+              return (
+                <View style={{ backgroundColor: 'white' }}>
+                  <Text
+                    style={{
+                      color: 'black',
+                      backgroundColor: 'white',
+                      textAlign: 'center',
+                    }}
+                  >
+                    Here you can add and update tasks for individual Soldiers.
+                    This will show up in their "My Tasks" section in their
+                    profile. You can add a task by pressing the{' '}
+                    <MaterialCommunityIcons
+                      name="plus-circle"
+                      size={15}
+                      color="#554d07"
+                    />{' '}
+                    underneath their name.
+                    {'\n'}
+                    {'\n'}Once a soldier has marked the task complete - the{' '}
+                    <MaterialCommunityIcons
+                      name="clipboard-check"
+                      size={15}
+                      color="#d90532"
+                    />{' '}
+                    will turn{' '}
+                    <MaterialCommunityIcons
+                      name="clipboard-check"
+                      size={15}
+                      color="#554d07"
+                    />
+                    . {'\n'}
+                    {'\n'}You can delete the task from their list at any time by
+                    pressing on the{' '}
+                    <MaterialCommunityIcons
+                      name="trash-can"
+                      size={15}
+                      color="#d90532"
+                    />
+                    .{'\n'}
+                    {'\n'}You can edit the task by clicking on the text and
+                    submitting the edit.
+                  </Text>
+                </View>
+              );
+            }}
+          />
+        </List.Accordion>
         <Portal>
           <Modal
             visible={visibleAdd}

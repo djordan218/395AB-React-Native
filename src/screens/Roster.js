@@ -135,9 +135,7 @@ export default function Roster() {
   const updateRosterInState = async () => {
     await supabase
       .from('users')
-      .select(
-        `id, civEmail, milEmail, rank, firstName, lastName, phone, isAdmin`
-      )
+      .select()
       .order('lastName', { ascending: true })
       .then((response) => {
         if (response.status >= 300) {
@@ -182,8 +180,8 @@ export default function Roster() {
           Alert.alert(response.statusText);
         }
         updateRosterInState();
-        Alert.alert('Successfully edited Soldier data.');
       });
+    Alert.alert('Successfully edited Soldier data.');
   };
 
   // sets image of rank left os user name
