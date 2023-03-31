@@ -133,7 +133,7 @@ export default function SoldierManagement() {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ backgroundColor: 'white' }}>
       <ScrollView>
         <View
           style={{
@@ -151,7 +151,7 @@ export default function SoldierManagement() {
           />
         </View>
         <List.Section
-          title="Soldier Management List"
+          title="Registration Email List"
           titleStyle={{
             fontWeight: 'bold',
             color: 'black',
@@ -188,7 +188,7 @@ export default function SoldierManagement() {
             iconColor={'#646c5c'}
             size={30}
             onPress={showModalAdd}
-            style={{ marginTop: -18, marginBottom: -2 }}
+            style={{ marginTop: -12, marginBottom: 5 }}
           />
         </View>
         <Portal>

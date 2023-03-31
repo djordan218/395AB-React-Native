@@ -29,9 +29,14 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function Tasks() {
-  const { userData, setUserData, userTasks, setUserTasks, setUnitRoster } =
-    React.useContext(UserContext);
-
+  const {
+    userData,
+    setUserData,
+    userTasks,
+    setUserTasks,
+    setUnitRoster,
+    displayName,
+  } = React.useContext(UserContext);
   // this updates a task
   // queries and edits the userTask state in case the user edited their own task
   // then queries and edits Unit Roster state to update the roster with completed task
@@ -41,6 +46,7 @@ export default function Tasks() {
       .update({
         status: !task.status,
         completed_on: new Date().toLocaleDateString(),
+        completed_by: displayName,
       })
       .eq('id', task.id)
       .then((response) => {
@@ -236,7 +242,8 @@ export default function Tasks() {
                             textAlign: 'center',
                           }}
                         >
-                          Marked complete on {formatDate(t.completed_on)}
+                          Marked complete on {formatDate(t.completed_on)} by{' '}
+                          {t.completed_by}
                         </Text>
                       ) : null}
                     </View>

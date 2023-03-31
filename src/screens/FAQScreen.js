@@ -145,7 +145,7 @@ const App = () => {
     category: Yup.string().required('You must categorize the FAQ question!'),
   });
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ backgroundColor: 'white' }}>
       <ScrollView>
         <Portal>
           <Modal
@@ -214,7 +214,6 @@ const App = () => {
                         label="What is the common question?"
                         placeholder="Must be a question"
                         placeholderTextColor="grey"
-                        autoCapitalize="none"
                         value={values.question}
                         onChangeText={handleChange('question')}
                       />
@@ -252,7 +251,6 @@ const App = () => {
                         label="Enter an answer"
                         placeholder="Required"
                         placeholderTextColor="grey"
-                        autoCapitalize="none"
                         value={values.answer}
                         onChangeText={handleChange('answer')}
                       />

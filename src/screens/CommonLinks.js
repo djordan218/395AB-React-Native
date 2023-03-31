@@ -18,7 +18,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 // displays common links, user can click on each link which opens up forms in same webview browser
 function Home({ navigation }) {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ backgroundColor: 'white' }}>
       <ScrollView>
         <View
           style={{
@@ -87,6 +87,26 @@ function Home({ navigation }) {
           >
             <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
               Mission Poll #2
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.pwResetBtn}
+            onPress={() => {
+              navigation.navigate('MissionPollThree');
+            }}
+          >
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+              Mission Poll #3
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.pwResetBtn}
+            onPress={() => {
+              navigation.navigate('MissionPollFour');
+            }}
+          >
+            <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+              Mission Poll #4
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -191,6 +211,26 @@ function MissionPollTwo() {
   );
 }
 
+function MissionPollThree() {
+  return (
+    <WebView
+      source={{
+        uri: 'https://docs.google.com/forms/d/e/1FAIpQLSecUZlFKiK8vBxTkO1USKI3LJknfWiCnrCxT8JQbasqaanhUw/viewform?usp=share_link',
+      }}
+    />
+  );
+}
+
+function MissionPollFour() {
+  return (
+    <WebView
+      source={{
+        uri: 'https://docs.google.com/forms/d/e/1FAIpQLSflJPiPFdLIa7H02IctWegpngFrJoe4wuPNFlr0nN-8GJCASA/viewform?usp=share_link',
+      }}
+    />
+  );
+}
+
 const Stack = createNativeStackNavigator();
 export default function CommonLinks() {
   return (
@@ -223,6 +263,16 @@ export default function CommonLinks() {
       <Stack.Screen
         name="MissionPollTwo"
         component={MissionPollTwo}
+        options={{ title: '' }}
+      />
+      <Stack.Screen
+        name="MissionPollThree"
+        component={MissionPollThree}
+        options={{ title: '' }}
+      />
+      <Stack.Screen
+        name="MissionPollFour"
+        component={MissionPollFour}
         options={{ title: '' }}
       />
       <Stack.Screen

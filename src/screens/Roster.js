@@ -28,6 +28,18 @@ export default function Roster() {
   const { unitRoster, setUnitRoster, userData } = useContext(UserContext);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
+  const [openLeader, setOpenLeader] = useState(false);
+  const [valueLeader, setValueLeader] = useState(null);
+  const [LeaderValue, setLeaderValue] = useState([
+    {
+      label: 'User is a squad leader.',
+      value: true,
+    },
+    {
+      label: 'User is NOT a squad leader',
+      value: false,
+    },
+  ]);
   const [openAdmin, setOpenAdmin] = useState(false);
   const [valueAdmin, setValueAdmin] = useState(null);
   const [adminValue, setAdminValue] = useState([
@@ -173,6 +185,7 @@ export default function Roster() {
         lastName: values.lastName,
         phone: values.phone,
         isAdmin: values.isAdmin,
+        isLeader: values.isLeader,
       })
       .eq('id', values.id)
       .then((response) => {
@@ -209,13 +222,16 @@ export default function Roster() {
         'Numbers only in xxx-xxx-xxxx format'
       )
       .required('Phone number is required'),
+    isLeader: Yup.boolean().required(
+      'Must determine if user is a squad leader or not'
+    ),
     isAdmin: Yup.boolean().required(
       'Must determine if user is an admin or not'
     ),
   });
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ backgroundColor: 'white' }}>
       <ScrollView>
         <View
           style={{
@@ -252,9 +268,9 @@ export default function Roster() {
             marginTop: -15,
           }}
         >
-          This is the unit roster. Use this to reach out to Soldiers if you have
-          questions, but also remember to follow the chain of command and use
-          the appropriate channels.
+          This is the current unit contact roster. Use this to reach out to
+          Soldiers if you have questions, but also remember to follow the chain
+          of command and use the appropriate channels.
         </List.Subheader>
         <Portal>
           <Modal
@@ -276,6 +292,7 @@ export default function Roster() {
                 lastName: modalData.lastName,
                 phone: modalData.phone,
                 isAdmin: modalData.isAdmin,
+                isLeader: modalData.isLeader,
               }}
               onSubmit={(values) => {
                 updateUser(values);
@@ -502,6 +519,43 @@ export default function Roster() {
                         width: 300,
                         backgroundColor: 'white',
                         zIndex: 300,
+                      }}
+                    >
+                      <DropDownPicker
+                        listMode="SCROLLVIEW"
+                        open={openLeader}
+                        value={valueLeader}
+                        items={LeaderValue}
+                        setOpen={setOpenLeader}
+                        setValue={setValueLeader}
+                        setItems={setLeaderValue}
+                        placeholder="Is user a squad leader?"
+                        onSelectItem={(selectedItem) => {
+                          setFieldValue('isLeader', selectedItem.value);
+                        }}
+                        style={{ marginTop: 5, borderRadius: 3 }}
+                        placeholderStyle={{ marginLeft: 5, color: 'grey' }}
+                        selectedItemContainerStyle={{ marginLeft: 10 }}
+                        textStyle={{ marginLeft: 5, fontSize: 15 }}
+                      />
+                    </View>
+                    {errors.isLeader && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: 'red',
+                          marginBottom: 2,
+                          marginTop: 2,
+                        }}
+                      >
+                        {errors.isLeader}
+                      </Text>
+                    )}
+                    <View
+                      style={{
+                        width: 300,
+                        backgroundColor: 'white',
+                        zIndex: 200,
                       }}
                     >
                       <DropDownPicker

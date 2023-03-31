@@ -72,6 +72,23 @@ function CustomDrawer(props) {
             />
           </View>
         ) : null}
+        {JSON.parse(userData).isLeader && !JSON.parse(userData).isAdmin ? (
+          <View
+            style={{
+              color: 'black',
+              flex: 1,
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              marginRight: 20,
+            }}
+          >
+            <MaterialCommunityIcons
+              name="check-decagram"
+              size={24}
+              color="#554d07"
+            />
+          </View>
+        ) : null}
       </View>
       <View
         style={{
@@ -505,7 +522,316 @@ const isAdmin = () => {
           drawerIcon: () => (
             <MaterialCommunityIcons name="human-edit" size={24} color="black" />
           ),
-          drawerLabel: 'Soldier Management',
+          drawerLabel: 'Registration Roster',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+        }}
+      />
+    </Drawer.Navigator>
+  );
+};
+
+const isLeader = () => {
+  const {
+    userData,
+    setUserTasks,
+    userTasks,
+    homeWebViewValue,
+    setHomeWebViewValue,
+    scheduleWebViewValue,
+    setScheduleWebViewValue,
+    newsletterWebViewValue,
+    setNewsletterWebViewValue,
+  } = useContext(UserContext);
+
+  async function reloadTasks() {
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .eq('civEmail', JSON.parse(userData).civEmail)
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        const soldier = JSON.stringify(response.data[0]);
+        if (soldier !== undefined) {
+          setUserTasks(JSON.parse(soldier).tasks);
+        } else {
+          console.log('did not find the soldier..');
+        }
+      });
+  }
+  return (
+    <Drawer.Navigator
+      initialRouteName="Home"
+      drawerContent={(props) => <CustomDrawer {...props} />}
+      screenOptions={{
+        headerTintColor: 'black',
+        drawerStyle: {
+          backgroundColor: 'white',
+          borderRightColor: 'black',
+          borderRightWidth: StyleSheet.hairlineWidth,
+        },
+        drawerLabelStyle: {
+          fontWeight: 'bold',
+          color: 'black',
+        },
+        drawerActiveTintColor: '#554d07',
+      }}
+    >
+      <Drawer.Screen
+        name="395th Army Band"
+        component={Home}
+        options={{
+          drawerItemStyle: { display: 'none' },
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="home" size={24} color="black" />
+          ),
+          drawerLabel: 'Home',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  setHomeWebViewValue(homeWebViewValue + 1);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="My Tasks"
+        component={Tasks}
+        options={{
+          drawerItemStyle: { display: 'none' },
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="clipboard-check-outline"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'My Tasks',
+          headerStyle: {
+            height: 100,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  reloadTasks();
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="Schedule"
+        component={Schedule}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="calendar" size={24} color="black" />
+          ),
+          drawerLabel: 'Schedule',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  setScheduleWebViewValue(scheduleWebViewValue + 1);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="NewsletterScreen"
+        component={NewsletterScreen}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="newspaper-variant-outline"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'Newsletter',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  setNewsletterWebViewValue(newsletterWebViewValue + 1);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="Roster"
+        component={Roster}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="contacts" size={24} color="black" />
+          ),
+          drawerLabel: 'Unit Roster',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+        }}
+      />
+      <Drawer.Screen
+        name="CommonLinks"
+        component={CommonLinks}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="link-variant"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'Common Links',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+        }}
+      />
+      <Drawer.Screen
+        name="CommonContacts"
+        component={CommonContacts}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="card-account-phone"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'Common Contacts',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+        }}
+      />
+      <Drawer.Screen
+        name="FAQScreen"
+        component={FAQScreen}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="message-question-outline"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'FAQ',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+        }}
+      />
+      <Drawer.Screen
+        name="Task Management"
+        component={TaskManagement}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="clipboard-account-outline"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'Task Management',
+          headerStyle: {
+            height: 100,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  reloadRoster();
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          drawerItemStyle: { display: 'none' },
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="account-circle"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'Edit Profile',
           headerStyle: {
             height: 100,
             borderBottomWidth: 2,
@@ -795,9 +1121,12 @@ const isNotAdmin = () => {
 export default function AppStack() {
   const { userData } = useContext(UserContext);
   const soldierData = JSON.parse(userData);
+  console.log(soldierData);
 
-  if (soldierData.isAdmin) {
+  if (soldierData.isAdmin && soldierData.isLeader) {
     return isAdmin();
+  } else if (!soldierData.isAdmin && soldierData.isLeader) {
+    return isLeader();
   } else {
     return isNotAdmin();
   }

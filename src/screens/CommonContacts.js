@@ -128,7 +128,7 @@ export default function CommonContacts() {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ backgroundColor: 'white' }}>
       <ScrollView>
         <View
           style={{

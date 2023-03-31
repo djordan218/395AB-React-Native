@@ -108,6 +108,7 @@ export default function TaskManagement() {
       .update({
         status: !task.status,
         completed_on: new Date().toLocaleDateString(),
+        completed_by: displayName,
       })
       .eq('id', task.id)
       .then((response) => {
@@ -671,7 +672,8 @@ export default function TaskManagement() {
                                 textAlign: 'center',
                               }}
                             >
-                              Marked complete on {formatDate(t.completed_on)}
+                              Marked complete on {formatDate(t.completed_on)} by{' '}
+                              {t.completed_by || 'Soldier'}
                             </Text>
                           ) : null}
                         </TouchableOpacity>
