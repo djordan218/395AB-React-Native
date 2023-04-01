@@ -89,7 +89,7 @@ export default function Tasks() {
   const { width, height } = Dimensions.get('window');
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ backgroundColor: 'white' }}>
       <ScrollView>
         <View
           style={{
@@ -135,8 +135,19 @@ export default function Tasks() {
               marginTop: -15,
             }}
           >
-            When you have completed the task, press the checkbox (it will turn
-            green) to let your leaders know it has been completed.
+            When you have completed the task, press on the task to change the{' '}
+            <MaterialCommunityIcons
+              name="clipboard-remove"
+              size={15}
+              color="#d90532"
+            />{' '}
+            to{' '}
+            <MaterialCommunityIcons
+              name="clipboard-check"
+              size={15}
+              color="#554d07"
+            />{' '}
+            to let your leaders know it has been completed.
           </List.Subheader>
         </View>
 
@@ -150,13 +161,25 @@ export default function Tasks() {
               height: height,
             }}
           >
-            <MaterialCommunityIcons
-              size={50}
-              name={'music-note'}
-              color="#554d07"
-            />
+            <View style={{ flexDirection: 'row', gap: -10 }}>
+              <MaterialCommunityIcons
+                size={50}
+                name={'music-note'}
+                color="#554d07"
+              />
+              <MaterialCommunityIcons
+                size={50}
+                name={'music'}
+                color="#d90532"
+              />
+              <MaterialCommunityIcons
+                size={50}
+                name={'music-note'}
+                color="#ffcf2d"
+              />
+            </View>
             <Text
-              style={{ fontSize: 20, fontWeight: 'bold', marginBottom: '100%' }}
+              style={{ fontSize: 20, fontWeight: 'bold', marginBottom: '120%' }}
             >
               You have no tasks! Good job!
             </Text>
@@ -214,7 +237,7 @@ export default function Tasks() {
                 titleStyle={{
                   color: 'black',
                   fontWeight: 500,
-                  textAlign: 'center',
+                  textAlign: 'left',
                 }}
                 titleNumberOfLines={100}
                 description={() => {
@@ -226,7 +249,7 @@ export default function Tasks() {
                           fontWeight: 300,
                           fontSize: 12,
                           marginTop: 5,
-                          textAlign: 'center',
+                          textAlign: 'left',
                         }}
                       >
                         Task added on {formatDate(t.created_at)} by{' '}
@@ -239,7 +262,7 @@ export default function Tasks() {
                             fontWeight: 300,
                             fontSize: 12,
                             marginTop: 5,
-                            textAlign: 'center',
+                            textAlign: 'left',
                           }}
                         >
                           Marked complete on {formatDate(t.completed_on)} by{' '}
@@ -298,7 +321,7 @@ export default function Tasks() {
                       }}
                     >
                       <List.Icon
-                        icon="clipboard-check"
+                        icon={t.status ? 'clipboard-check' : 'clipboard-remove'}
                         color={t.status ? '#554d07' : '#d90532'}
                       />
                     </TouchableOpacity>

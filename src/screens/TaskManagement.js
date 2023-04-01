@@ -312,7 +312,7 @@ export default function TaskManagement() {
                     {'\n'}
                     {'\n'}Once a soldier has marked the task complete - the{' '}
                     <MaterialCommunityIcons
-                      name="clipboard-check"
+                      name="clipboard-remove"
                       size={15}
                       color="#d90532"
                     />{' '}
@@ -322,7 +322,8 @@ export default function TaskManagement() {
                       size={15}
                       color="#554d07"
                     />
-                    . {'\n'}
+                    and display when it was completed and who marked it
+                    complete. {'\n'}
                     {'\n'}You can delete the task from their list at any time by
                     pressing on the{' '}
                     <MaterialCommunityIcons
@@ -332,7 +333,10 @@ export default function TaskManagement() {
                     />
                     .{'\n'}
                     {'\n'}You can edit the task by clicking on the text and
-                    submitting the edit.
+                    pressing on the "Edit Task" button.{'\n'}
+                    Once a task has been completed by the Soldier and no further
+                    action is required, please delete the task to avoid
+                    excessive clutter.
                   </Text>
                 </View>
               );
@@ -656,7 +660,7 @@ export default function TaskManagement() {
                               fontWeight: 300,
                               fontSize: 12,
                               marginTop: 5,
-                              textAlign: 'center',
+                              textAlign: 'left',
                             }}
                           >
                             Task added on {formatDate(t.created_at)} by{' '}
@@ -669,7 +673,7 @@ export default function TaskManagement() {
                                 fontWeight: 300,
                                 fontSize: 12,
                                 marginTop: 5,
-                                textAlign: 'center',
+                                textAlign: 'left',
                               }}
                             >
                               Marked complete on {formatDate(t.completed_on)} by{' '}
@@ -698,7 +702,7 @@ export default function TaskManagement() {
                             fontWeight: '500',
                             color: 'black',
                             fontSize: 15,
-                            textAlign: 'center',
+                            textAlign: 'left',
                           }}
                         >
                           {t.task}
@@ -732,7 +736,7 @@ export default function TaskManagement() {
                     >
                       <List.Icon
                         {...props}
-                        icon="clipboard-check"
+                        icon={t.status ? 'clipboard-check' : 'clipboard-remove'}
                         color={t.status ? '#554d07' : '#d90532'}
                       />
                     </TouchableOpacity>
