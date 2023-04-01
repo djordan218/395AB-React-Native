@@ -32,11 +32,11 @@ export default function Roster() {
   const [valueLeader, setValueLeader] = useState(null);
   const [LeaderValue, setLeaderValue] = useState([
     {
-      label: 'User is a squad leader.',
+      label: 'User CAN assign tasks.',
       value: true,
     },
     {
-      label: 'User is NOT a squad leader',
+      label: 'Soldier can NOT assign tasks.',
       value: false,
     },
   ]);
@@ -44,11 +44,11 @@ export default function Roster() {
   const [valueAdmin, setValueAdmin] = useState(null);
   const [adminValue, setAdminValue] = useState([
     {
-      label: 'User is an admin.',
+      label: 'Soldier IS an admin.',
       value: true,
     },
     {
-      label: 'User is NOT an admin',
+      label: 'Soldier IS NOT an admin',
       value: false,
     },
   ]);
@@ -140,6 +140,7 @@ export default function Roster() {
   const modalEditData = (data) => {
     setValue(data.rank);
     setValueAdmin(data.isAdmin);
+    setValueLeader(data.isLeader);
     setModalData(data);
   };
 

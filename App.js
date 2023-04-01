@@ -10,6 +10,7 @@ import { supabase } from './hooks/supabase';
 import { Session } from '@supabase/supabase-js';
 import SoldierManagement from './src/screens/SoldierManagement';
 import 'react-native-gesture-handler';
+import { checkPluginState } from 'react-native-reanimated/lib/reanimated2/core';
 
 export default function App() {
   const [userData, setUserData] = useState({
@@ -22,6 +23,7 @@ export default function App() {
     lastName: '',
     phone: '',
     isAdmin: '',
+    isLeader: '',
   });
   const [unitRoster, setUnitRoster] = useState('');
   const [signedIn, setSignedIn] = useState(false);
@@ -53,7 +55,7 @@ export default function App() {
   const saveFAQDataToState = async () => {
     await supabase
       .from('faq')
-      .select(`id, question, answer, category`)
+      .select()
       .order('category', { ascending: true })
       .then((response) => {
         setFAQData(response.data);
@@ -64,7 +66,7 @@ export default function App() {
   const saveEmailRosterToState = async () => {
     await supabase
       .from('emailRoster')
-      .select(`id, civEmail, milEmail, firstName, lastName`)
+      .select()
       .order('lastName', { ascending: true })
       .then((response) => {
         setEmailRoster(response.data);
