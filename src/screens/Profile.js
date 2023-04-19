@@ -135,6 +135,7 @@ export default function Profile() {
         firstName: values.firstName,
         lastName: values.lastName,
         phone: values.phone,
+        dod_id: values.dod_id,
         isAdmin: values.isAdmin,
       })
       .eq('id', JSON.parse(userData).id)
@@ -173,6 +174,7 @@ export default function Profile() {
         firstName: values.firstName,
         lastName: values.lastName,
         phone: values.phone,
+        dod_id: values.dod_id,
         isAdmin: values.isAdmin,
       };
       await AsyncStorage.setItem('395soldier', JSON.stringify(soldierData));
@@ -194,6 +196,7 @@ export default function Profile() {
         'Numbers only in xxx-xxx-xxxx format'
       )
       .required('Phone number is required'),
+    dod_id: Yup.string().required('You must provide your DoD ID #'),
   });
 
   return (
@@ -206,6 +209,7 @@ export default function Profile() {
         firstName: JSON.parse(userData).firstName || '',
         lastName: JSON.parse(userData).lastName || '',
         phone: JSON.parse(userData).phone || '',
+        dod_id: JSON.parse(userData).dod_id || '',
         isAdmin: JSON.parse(userData).isAdmin,
       }}
       onSubmit={(values) => {
@@ -352,6 +356,25 @@ export default function Profile() {
             </View>
             {errors.phone && (
               <Text style={styles.errorText}>{errors.phone}</Text>
+            )}
+            <View>
+              <TextInput
+                style={{ width: 300, backgroundColor: 'white' }}
+                contentStyle={{ color: 'black' }}
+                keyboardType="number-pad"
+                mode="outlined"
+                outlineColor="black"
+                activeOutlineColor="#5e5601"
+                label="DoD ID #"
+                placeholder="DoD ID #"
+                placeholderTextColor="grey"
+                autoCapitalize="none"
+                value={values.dod_id}
+                onChangeText={handleChange('dod_id')}
+              />
+            </View>
+            {errors.dod_id && (
+              <Text style={styles.errorText}>{errors.dod_id}</Text>
             )}
             <Portal>
               <Modal

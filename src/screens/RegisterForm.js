@@ -115,6 +115,7 @@ export default function RegisterForm({ navigation }) {
   const ref_firstName = useRef();
   const ref_lastName = useRef();
   const ref_phone = useRef();
+  const ref_dod_id = useRef();
 
   // checks emailRoster table for civilian OR mil email
   // encodes password and inserts register form data into users table
@@ -152,6 +153,8 @@ export default function RegisterForm({ navigation }) {
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
+          dod_id: values.dod_id,
+          isLeader: values.isLeader,
           isAdmin: values.isAdmin,
         })
         .then((response) => {
@@ -179,6 +182,8 @@ export default function RegisterForm({ navigation }) {
       firstName: values.firstName,
       lastName: values.lastName,
       phone: values.phone,
+      dod_id: values.dod_id,
+      isLeader: values.isLeader,
       isAdmin: values.isAdmin,
     };
     try {
@@ -191,18 +196,22 @@ export default function RegisterForm({ navigation }) {
 
   const RegisterSchema = Yup.object().shape({
     civEmail: Yup.string()
-      .email('Invalid email')
+      .email('Invalid email - no empty spaces')
       .lowercase('Must be all lowercase letters')
       .required('Email is required'),
     milEmail: Yup.string()
       .lowercase('Must be all lowercase letters')
-      .email('Invalid email'),
+      .email('Invalid email - no empty spaces'),
     password: Yup.string()
       .min(8, ({ min }) => `Password must be at least ${min} characters`)
       .required('Password is required'),
     rank: Yup.string().required('You must select a rank'),
     firstName: Yup.string().required('You must enter your first name'),
     lastName: Yup.string().required('You must enter your last name'),
+    dod_id: Yup.string()
+      .matches(/^[0-9]+$/, 'Must be only digits')
+      .min(10, 'Must be exactly 10 digits')
+      .max(10, 'Must be exactly 10 digits'),
     phone: Yup.string()
       .matches(
         /^((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}$/,
@@ -222,9 +231,12 @@ export default function RegisterForm({ navigation }) {
           firstName: '',
           lastName: '',
           phone: '',
+          dod_id: '',
+          isLeader: false,
           isAdmin: false,
         }}
         onSubmit={(values) => {
+          console.log(values);
           checkEmailRosterAndRegister(values);
         }}
         validationSchema={RegisterSchema}
@@ -423,11 +435,32 @@ export default function RegisterForm({ navigation }) {
                   value={values.phone}
                   onChangeText={handleChange('phone')}
                   ref={ref_phone}
-                  returnKeyType="done"
+                  returnKeyType="next"
                 />
               </View>
               {errors.phone && (
                 <Text style={styles.errorText}>{errors.phone}</Text>
+              )}
+              <View style={{ padding: 3, justifyContent: 'flex-end' }}>
+                <TextInput
+                  style={styles.formTextInput}
+                  keyboardType="number-pad"
+                  contentStyle={{ color: 'black' }}
+                  mode="outlined"
+                  outlineColor="black"
+                  activeOutlineColor="#5e5601"
+                  label="DoD ID #"
+                  placeholder="10 digits"
+                  placeholderTextColor="#808080"
+                  autoCapitalize="none"
+                  value={values.dod_id}
+                  onChangeText={handleChange('dod_id')}
+                  ref={ref_dod_id}
+                  returnKeyType="done"
+                />
+              </View>
+              {errors.dod_id && (
+                <Text style={styles.errorText}>{errors.dod_id}</Text>
               )}
               <Button
                 mode="contained"

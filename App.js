@@ -22,6 +22,7 @@ export default function App() {
     firstName: '',
     lastName: '',
     phone: '',
+    dod_id: '',
     isAdmin: '',
     isLeader: '',
   });
@@ -160,11 +161,13 @@ export default function App() {
         }
       }
       if (soldierData == null) {
+        AsyncStorage.clear();
         setUserData(null);
         console.log('no soldier data');
       }
     } catch (e) {
       console.log(e);
+      AsyncStorage.clear();
       setUserData(null);
     }
     setInfoLoaded(true);

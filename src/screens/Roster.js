@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { List, Portal, Modal, TextInput, Button } from 'react-native-paper';
 import UserContext from '../../hooks/UserContext';
@@ -23,6 +24,7 @@ import { supabase } from '../../hooks/supabase';
 import { Session } from '@supabase/supabase-js';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { checkPluginState } from 'react-native-reanimated/lib/reanimated2/core';
 
 export default function Roster() {
   const { unitRoster, setUnitRoster, userData } = useContext(UserContext);
@@ -135,6 +137,16 @@ export default function Roster() {
   const showModalEdit = () => setVisibleEdit(true);
   const hideModalEdit = () => setVisibleEdit(false);
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    updateRosterInState();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+
   // saves data to modal
   // used to populate edit form with data of soldier being edited
   const modalEditData = (data) => {
@@ -151,8 +163,8 @@ export default function Roster() {
       .select()
       .order('lastName', { ascending: true })
       .then((response) => {
-        if (response.status >= 300) {
-          Alert.alert(response.statusText);
+        if (response.error) {
+          Alert.alert(response.error);
         }
         setUnitRoster(response.data);
       });
@@ -165,8 +177,8 @@ export default function Roster() {
       .delete()
       .eq('id', id)
       .then((response) => {
-        if (response.status >= 300) {
-          Alert.alert(response.statusText);
+        if (response.error) {
+          Alert.alert(response.error);
         }
         updateRosterInState();
       });
@@ -185,17 +197,18 @@ export default function Roster() {
         firstName: values.firstName,
         lastName: values.lastName,
         phone: values.phone,
+        dod_id: values.dod_id,
         isAdmin: values.isAdmin,
         isLeader: values.isLeader,
       })
       .eq('id', values.id)
       .then((response) => {
-        if (response.status >= 300) {
-          Alert.alert(response.statusText);
+        if (response.error) {
+          Alert.alert(response.error);
         }
         updateRosterInState();
+        Alert.alert('Successfully edited Soldier data.');
       });
-    Alert.alert('Successfully edited Soldier data.');
   };
 
   // sets image of rank left os user name
@@ -233,7 +246,11 @@ export default function Roster() {
 
   return (
     <SafeAreaView style={{ backgroundColor: 'white' }}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View
           style={{
             flex: 1,
@@ -292,6 +309,7 @@ export default function Roster() {
                 firstName: modalData.firstName,
                 lastName: modalData.lastName,
                 phone: modalData.phone,
+                dod_id: modalData.dod_id,
                 isAdmin: modalData.isAdmin,
                 isLeader: modalData.isLeader,
               }}
@@ -515,6 +533,34 @@ export default function Roster() {
                         {errors.phone}
                       </Text>
                     )}
+                    <View>
+                      <TextInput
+                        style={{ width: 300, backgroundColor: 'white' }}
+                        keyboardType="number-pad"
+                        contentStyle={{ color: 'black' }}
+                        mode="outlined"
+                        outlineColor="black"
+                        activeOutlineColor="#5e5601"
+                        label="DoD ID #"
+                        placeholder="DoD ID #"
+                        placeholderTextColor="grey"
+                        autoCapitalize="none"
+                        value={values.dod_id}
+                        onChangeText={handleChange('dod_id')}
+                      />
+                    </View>
+                    {errors.dod_id && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: 'red',
+                          marginBottom: 2,
+                          marginTop: 2,
+                        }}
+                      >
+                        {errors.dod_id}
+                      </Text>
+                    )}
                     <View
                       style={{
                         width: 300,
@@ -632,13 +678,23 @@ export default function Roster() {
                 source={setImg(s.rank)}
                 style={{
                   resizeMode: 'contain',
-                  width: 40,
-                  height: 40,
+                  width: 35,
+                  height: 35,
                 }}
               />
             )}
             title={s.rank + ' ' + s.firstName + ' ' + s.lastName}
           >
+            <List.Item
+              title={s.dod_id}
+              titleStyle={{
+                fontWeight: '500',
+                color: 'black',
+              }}
+              left={(props) => (
+                <List.Icon {...props} icon="id-card" color="black" />
+              )}
+            />
             <List.Item
               title={s.civEmail}
               titleStyle={{ fontWeight: '500', color: 'black' }}

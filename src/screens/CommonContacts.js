@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -12,6 +12,7 @@ import {
   Alert,
   TouchableWithoutFeedback,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import {
   List,
@@ -38,6 +39,15 @@ export default function CommonContacts() {
   const hideModalAdd = () => setVisibleAdd(false);
   const showModalEdit = () => setVisibleEdit(true);
   const hideModalEdit = () => setVisibleEdit(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    updateCommonContactState();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
 
   // used to reset/reload common contact state
   // used following add/update/delete
@@ -129,7 +139,11 @@ export default function CommonContacts() {
 
   return (
     <SafeAreaView style={{ backgroundColor: 'white' }}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View
           style={{
             flex: 1,

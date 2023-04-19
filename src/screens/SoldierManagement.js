@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import {
   List,
@@ -39,6 +40,24 @@ export default function SoldierManagement() {
   const modalEditData = (data) => {
     setModalData(data);
   };
+  const [refreshing, setRefreshing] = useState(false);
+  const saveEmailRosterToState = async () => {
+    await supabase
+      .from('emailRoster')
+      .select()
+      .order('lastName', { ascending: true })
+      .then((response) => {
+        setEmailRoster(response.data);
+      });
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    saveEmailRosterToState();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
 
   const AddEmailsSchema = Yup.object().shape({
     milEmail: Yup.string()
@@ -134,7 +153,11 @@ export default function SoldierManagement() {
 
   return (
     <SafeAreaView style={{ backgroundColor: 'white' }}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View
           style={{
             flex: 1,

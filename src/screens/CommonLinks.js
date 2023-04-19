@@ -18,7 +18,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 // displays common links, user can click on each link which opens up forms in same webview browser
 function Home({ navigation }) {
   return (
-    <SafeAreaView style={{ backgroundColor: 'white' }}>
+    <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
       <ScrollView>
         <View
           style={{
@@ -33,8 +33,8 @@ function Home({ navigation }) {
           <Image
             style={{
               resizeMode: 'contain',
-              height: 200,
-              width: 200,
+              height: 150,
+              width: 150,
             }}
             source={require('../../assets/63rd.png')}
           />
@@ -119,22 +119,6 @@ function Home({ navigation }) {
               After Action Review (AAR)
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.pwResetBtn}
-            onPress={() => {
-              navigation.navigate('CounselingForm');
-            }}
-          >
-            <Text
-              style={{
-                color: 'black',
-                fontWeight: 'bold',
-                fontSize: 16,
-              }}
-            >
-              Developmental Counseling Form
-            </Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -166,16 +150,6 @@ function AARForm() {
     <WebView
       source={{
         uri: 'https://docs.google.com/forms/d/e/1FAIpQLSdSYZj3xHB6dzbqx6LwptFAfJuyqU5s7SBvW3mbZOYswBnFcw/viewform',
-      }}
-    />
-  );
-}
-
-function CounselingForm() {
-  return (
-    <WebView
-      source={{
-        uri: 'https://docs.google.com/forms/d/e/1FAIpQLSfRvMdJlozbAkQzg7SkPUwK4IcNW8ELFXV7LUeynJYdK8v5sw/viewform?usp=share_link',
       }}
     />
   );
@@ -243,11 +217,6 @@ export default function CommonLinks() {
       <Stack.Screen
         name="AARForm"
         component={AARForm}
-        options={{ title: '' }}
-      />
-      <Stack.Screen
-        name="CounselingForm"
-        component={CounselingForm}
         options={{ title: '' }}
       />
       <Stack.Screen

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -12,7 +12,9 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
+import qs from 'qs';
 import {
   List,
   Portal,
@@ -49,6 +51,28 @@ export default function TaskManagement() {
   const showModalEdit = () => setVisibleEdit(true);
   const hideModalEdit = () => setVisibleEdit(false);
   const [modalData, setModalData] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  // saving roster to state - this is meant for the pull to refresh to reload entire rosters' tasks
+  const saveRosterToState = async () => {
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .order('lastName', { ascending: true })
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        setUnitRoster(response.data);
+      });
+  };
+
+  // pull to refresh functionality
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    saveRosterToState();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
 
   // this saves data to state to load into edit form
   const saveToModalData = (data) => {
@@ -109,6 +133,7 @@ export default function TaskManagement() {
         status: !task.status,
         completed_on: new Date().toLocaleDateString(),
         completed_by: displayName,
+        soldier_response: '',
       })
       .eq('id', task.id)
       .then((response) => {
@@ -218,6 +243,30 @@ export default function TaskManagement() {
       });
   };
 
+  // pulls up user's native email client with pre-populated data with task
+  const sendTaskEmailToSoldier = async (to, subject, body) => {
+    let url = `mailto:${to}`;
+
+    // Create email link query
+    const query = qs.stringify({
+      subject: subject,
+      body: body,
+    });
+
+    if (query.length) {
+      url += `?${query}`;
+    }
+
+    // check if we can use this link
+    const canOpen = await Linking.canOpenURL(url);
+
+    if (!canOpen) {
+      throw new Error('Provided URL can not be handled');
+    }
+
+    return Linking.openURL(url);
+  };
+
   // sets the user rank image that is left of their name
   const setImg = (rank) => {
     if (rank == '1SG') {
@@ -245,7 +294,11 @@ export default function TaskManagement() {
 
   return (
     <SafeAreaView>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View
           style={{
             flex: 1,
@@ -361,9 +414,17 @@ export default function TaskManagement() {
                 created_at: new Date().toLocaleDateString(),
               }}
               onSubmit={(values) => {
-                console.log(values);
-                const soldierId = modalData;
+                const soldierId = modalData.id;
                 addTaskToSoldier(values, soldierId);
+                sendTaskEmailToSoldier(
+                  modalData.civEmail,
+                  `New 395AB Task for ${modalData.rank} ${modalData.firstName} ${modalData.lastName}!`,
+                  `You have been assigned a task by ${values.added_by}:\n\n ${
+                    values.task
+                  }\n\n You can respond to this email or text/call at ${
+                    JSON.parse(userData).phone
+                  } if you have any questions.`
+                );
               }}
               validationSchema={addTaskSchema}
               validateOnChange={false}
@@ -663,8 +724,8 @@ export default function TaskManagement() {
                               textAlign: 'left',
                             }}
                           >
-                            Task added on {formatDate(t.created_at)} by{' '}
-                            {t.added_by || 'unknown'}
+                            Added by {t.added_by || 'unknown'} on{' '}
+                            {formatDate(t.created_at)}
                           </Text>
                           {t.status ? (
                             <Text
@@ -676,8 +737,21 @@ export default function TaskManagement() {
                                 textAlign: 'left',
                               }}
                             >
-                              Marked complete on {formatDate(t.completed_on)} by{' '}
-                              {t.completed_by || 'Soldier'}
+                              Complete by {t.completed_by || 'Soldier'} on{' '}
+                              {formatDate(t.completed_on) || 'unknown'}
+                            </Text>
+                          ) : null}
+                          {t.soldier_response ? (
+                            <Text
+                              style={{
+                                color: 'black',
+                                fontWeight: 300,
+                                fontSize: 12,
+                                marginTop: 5,
+                                textAlign: 'left',
+                              }}
+                            >
+                              Response: "{t.soldier_response}"
                             </Text>
                           ) : null}
                         </TouchableOpacity>
@@ -776,7 +850,7 @@ export default function TaskManagement() {
                 <TouchableOpacity
                   style={{ marginRight: 160 }}
                   onPress={() => {
-                    saveToModalData(s.id);
+                    saveToModalData(s);
                     showModalAdd();
                   }}
                 >

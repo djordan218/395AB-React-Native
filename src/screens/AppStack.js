@@ -1121,7 +1121,6 @@ const isNotAdmin = () => {
 export default function AppStack() {
   const { userData } = useContext(UserContext);
   const soldierData = JSON.parse(userData);
-  console.log(soldierData);
 
   if (soldierData.isAdmin && soldierData.isLeader) {
     return isAdmin();

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -12,6 +12,7 @@ import {
   Keyboard,
   TouchableOpacity,
   Dimensions,
+  RefreshControl,
 } from 'react-native';
 import {
   List,
@@ -27,6 +28,7 @@ import UserContext from '../../hooks/UserContext';
 import { supabase } from '../../hooks/supabase';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Dialog from 'react-native-dialog';
 
 export default function Tasks() {
   const {
@@ -37,6 +39,43 @@ export default function Tasks() {
     setUnitRoster,
     displayName,
   } = React.useContext(UserContext);
+  const [visibleTask, setVisibleTask] = useState(false);
+  const showModalTask = () => setVisibleTask(true);
+  const hideModalTask = () => setVisibleTask(false);
+  const [modalData, setModalData] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshTasks = async () => {
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .eq('civEmail', JSON.parse(userData).civEmail)
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        const soldier = JSON.stringify(response.data[0]);
+        if (soldier !== undefined) {
+          setUserTasks(JSON.parse(soldier).tasks);
+        } else {
+          console.log('did not find the soldier..');
+        }
+      });
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    refreshTasks();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+
+  const handleDelete = () => {
+    console.log('deleted');
+    // The user has pressed the "Delete" button, so here you can do your own logic.
+    // ...Your logic
+    setVisible(false);
+  };
+
   // this updates a task
   // queries and edits the userTask state in case the user edited their own task
   // then queries and edits Unit Roster state to update the roster with completed task
@@ -47,6 +86,50 @@ export default function Tasks() {
         status: !task.status,
         completed_on: new Date().toLocaleDateString(),
         completed_by: displayName,
+        soldier_response: task.response,
+      })
+      .eq('id', task.id)
+      .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
+      });
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .eq('id', JSON.parse(userData).id)
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
+        const soldier = JSON.stringify(response.data[0]);
+        setUserTasks(JSON.parse(soldier).tasks);
+      });
+    await supabase
+      .from('users')
+      .select('*, tasks:tasks(*)')
+      .order('lastName', { ascending: true })
+      .order('id', { foreignTable: 'tasks', ascending: true })
+      .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
+        setUnitRoster(response.data);
+      });
+  }
+
+  // this updates a task as INCOMPLETE, marks other columns as null
+  // queries and edits the userTask state in case the user edited their own task
+  // then queries and edits Unit Roster state to update the roster with completed task
+  async function incompleteTask(task) {
+    await supabase
+      .from('tasks')
+      .update({
+        status: !task.status,
+        completed_on: null,
+        completed_by: null,
+        soldier_response: null,
       })
       .eq('id', task.id)
       .then((response) => {
@@ -88,9 +171,135 @@ export default function Tasks() {
   // needed this to set the height of window for ternary operator when a user doesn't have a task it displays text info
   const { width, height } = Dimensions.get('window');
 
+  const TaskResponseSchema = Yup.object().shape({
+    response: Yup.string().required('Response is required'),
+  });
+
   return (
-    <SafeAreaView style={{ backgroundColor: 'white' }}>
-      <ScrollView>
+    <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <Portal>
+          <Modal
+            visible={visibleTask}
+            onDismiss={hideModalTask}
+            contentContainerStyle={{
+              height: 300,
+            }}
+          >
+            <Formik
+              initialValues={{
+                id: modalData.id,
+                task: modalData.task,
+                status: modalData.status,
+                response: '',
+              }}
+              onSubmit={(values) => {
+                updateTask(values);
+                hideModalTask();
+              }}
+              validationSchema={TaskResponseSchema}
+              validateOnChange={false}
+              validateOnBlur={false}
+            >
+              {({ errors, handleChange, handleSubmit, values }) => (
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                  <KeyboardAwareScrollView
+                    enableOnAndroid={true}
+                    extraScrollHeight={80}
+                    keyboardOpeningTime={0}
+                    contentContainerStyle={{
+                      flex: 1,
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 20,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: 'bold',
+                        marginBottom: 10,
+                        color: 'black',
+                        fontSize: 18,
+                      }}
+                    >
+                      Respond to Task
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 15,
+                      }}
+                    >
+                      {modalData.task}
+                    </Text>
+
+                    <View>
+                      <TextInput
+                        style={{
+                          width: 300,
+                          maxHeight: 200,
+                          backgroundColor: 'white',
+                          color: 'black',
+                          textAlign: 'auto',
+                        }}
+                        multiline={true}
+                        contentStyle={{ color: 'black' }}
+                        mode="outlined"
+                        outlineColor="black"
+                        activeOutlineColor="#5e5601"
+                        label="Response"
+                        placeholder="required"
+                        placeholderTextColor="grey"
+                        value={values.response}
+                        onChangeText={handleChange('response')}
+                      />
+                    </View>
+                    {errors.response && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: 'red',
+                          marginBottom: 2,
+                          marginTop: 2,
+                        }}
+                      >
+                        {errors.response}
+                      </Text>
+                    )}
+                    <Button
+                      mode="contained"
+                      onPress={handleSubmit}
+                      title="Submit"
+                      labelStyle={{ fontWeight: 'bold', color: 'white' }}
+                      style={{
+                        backgroundColor: '#5e5601',
+                        width: 200,
+                        borderColor: 'black',
+                        borderWidth: 1,
+                        marginTop: 10,
+                      }}
+                    >
+                      Complete Task
+                    </Button>
+                    <TouchableOpacity onPress={hideModalTask}>
+                      <MaterialCommunityIcons
+                        style={{ marginTop: 20 }}
+                        name="close-circle-outline"
+                        size={24}
+                        color="black"
+                      />
+                    </TouchableOpacity>
+                  </KeyboardAwareScrollView>
+                </TouchableWithoutFeedback>
+              )}
+            </Formik>
+          </Modal>
+        </Portal>
         <View
           style={{
             flex: 1,
@@ -150,7 +359,6 @@ export default function Tasks() {
             to let your leaders know it has been completed.
           </List.Subheader>
         </View>
-
         {userTasks == 0 ? (
           <View
             style={{
@@ -190,23 +398,8 @@ export default function Tasks() {
               key={t.task}
               onPress={() => {
                 if (t.status === false) {
-                  Alert.alert(
-                    'Update task as completed?',
-                    'Are you sure you want to update this task as completed?',
-                    [
-                      {
-                        text: 'Cancel',
-                        onPress: () => console.log('Cancel Pressed'),
-                        style: 'cancel',
-                      },
-                      {
-                        text: 'Mark Complete',
-                        onPress: async () => {
-                          updateTask(t);
-                        },
-                      },
-                    ]
-                  );
+                  setModalData(t);
+                  showModalTask();
                 } else {
                   Alert.alert(
                     'Mark as incomplete?',
@@ -220,7 +413,7 @@ export default function Tasks() {
                       {
                         text: 'Mark Incomplete',
                         onPress: async () => {
-                          updateTask(t);
+                          incompleteTask(t);
                         },
                       },
                     ]
@@ -252,8 +445,8 @@ export default function Tasks() {
                           textAlign: 'left',
                         }}
                       >
-                        Task added on {formatDate(t.created_at)} by{' '}
-                        {t.added_by || 'unknown'}
+                        Added by {t.added_by || 'unknown'} on{' '}
+                        {formatDate(t.created_at)}
                       </Text>
                       {t.status ? (
                         <Text
@@ -265,8 +458,21 @@ export default function Tasks() {
                             textAlign: 'left',
                           }}
                         >
-                          Marked complete on {formatDate(t.completed_on)} by{' '}
-                          {t.completed_by}
+                          Completed by {t.completed_by} on{' '}
+                          {formatDate(t.completed_on)}
+                        </Text>
+                      ) : null}
+                      {t.soldier_response ? (
+                        <Text
+                          style={{
+                            color: 'black',
+                            fontWeight: 300,
+                            fontSize: 12,
+                            marginTop: 5,
+                            textAlign: 'left',
+                          }}
+                        >
+                          Response: "{t.soldier_response}"
                         </Text>
                       ) : null}
                     </View>
@@ -282,23 +488,8 @@ export default function Tasks() {
                       }}
                       onPress={() => {
                         if (t.status === false) {
-                          Alert.alert(
-                            'Update task as completed?',
-                            'Are you sure you want to update this task as completed?',
-                            [
-                              {
-                                text: 'Cancel',
-                                onPress: () => console.log('Cancel Pressed'),
-                                style: 'cancel',
-                              },
-                              {
-                                text: 'Mark Complete',
-                                onPress: async () => {
-                                  updateTask(t);
-                                },
-                              },
-                            ]
-                          );
+                          setModalData(t);
+                          showModalTask();
                         } else {
                           Alert.alert(
                             'Mark as incomplete?',
@@ -312,7 +503,7 @@ export default function Tasks() {
                               {
                                 text: 'Mark Incomplete',
                                 onPress: async () => {
-                                  updateTask(t);
+                                  incompleteTask(t);
                                 },
                               },
                             ]

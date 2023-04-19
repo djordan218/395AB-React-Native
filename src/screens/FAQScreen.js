@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import {
   List,
@@ -72,6 +73,16 @@ const App = () => {
     setValueEdit(data.category);
     setModalData(data);
   };
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    saveFAQDataToState();
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
 
   // queries FAQ table and sets to state
   const saveFAQDataToState = async () => {
@@ -146,7 +157,11 @@ const App = () => {
   });
   return (
     <SafeAreaView style={{ backgroundColor: 'white' }}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Portal>
           <Modal
             visible={visibleAdd}
@@ -561,10 +576,10 @@ const App = () => {
           title="General"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'black',
+            color: 'white',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#aaa683',
+            backgroundColor: '#554d07',
             margin: -12,
             borderTopColor: 'black',
             borderTopWidth: StyleSheet.hairlineWidth,
@@ -663,10 +678,10 @@ const App = () => {
           title="Admin & HR"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'black',
+            color: 'white',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#aaa683',
+            backgroundColor: '#554d07',
             margin: -12,
             borderTopColor: 'black',
             borderTopWidth: StyleSheet.hairlineWidth,
@@ -765,10 +780,10 @@ const App = () => {
           title="Safety & Security"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'black',
+            color: 'white',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#aaa683',
+            backgroundColor: '#554d07',
             margin: -12,
             borderTopColor: 'black',
             borderTopWidth: StyleSheet.hairlineWidth,
@@ -867,10 +882,10 @@ const App = () => {
           title="Training"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'black',
+            color: 'white',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#aaa683',
+            backgroundColor: '#554d07',
             margin: -12,
             borderTopColor: 'black',
             borderTopWidth: StyleSheet.hairlineWidth,
@@ -969,10 +984,10 @@ const App = () => {
           title="Operations"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'black',
+            color: 'white',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#aaa683',
+            backgroundColor: '#554d07',
             margin: -12,
             borderTopColor: 'black',
             borderTopWidth: StyleSheet.hairlineWidth,
@@ -1071,10 +1086,10 @@ const App = () => {
           title="Logistics & Supply"
           titleStyle={{
             fontWeight: 'bold',
-            color: 'black',
+            color: 'white',
             fontSize: 18,
             textAlign: 'center',
-            backgroundColor: '#aaa683',
+            backgroundColor: '#554d07',
             margin: -12,
             borderTopColor: 'black',
             borderTopWidth: StyleSheet.hairlineWidth,
