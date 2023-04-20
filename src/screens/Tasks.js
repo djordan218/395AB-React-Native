@@ -53,11 +53,7 @@ export default function Tasks() {
       .order('id', { foreignTable: 'tasks', ascending: true })
       .then((response) => {
         const soldier = JSON.stringify(response.data[0]);
-        if (soldier !== undefined) {
-          setUserTasks(JSON.parse(soldier).tasks);
-        } else {
-          console.log('did not find the soldier..');
-        }
+        setUserTasks(JSON.parse(soldier).tasks);
       });
   };
 

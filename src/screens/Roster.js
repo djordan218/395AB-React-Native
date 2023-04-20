@@ -27,7 +27,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { checkPluginState } from 'react-native-reanimated/lib/reanimated2/core';
 
 export default function Roster() {
-  const { unitRoster, setUnitRoster, userData } = useContext(UserContext);
+  const { unitRoster, setUnitRoster, userData, saveRosterToState } =
+    useContext(UserContext);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [openLeader, setOpenLeader] = useState(false);
@@ -141,7 +142,7 @@ export default function Roster() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    updateRosterInState();
+    saveRosterToState();
     setTimeout(() => {
       setRefreshing(false);
     }, 1000);
@@ -154,20 +155,6 @@ export default function Roster() {
     setValueAdmin(data.isAdmin);
     setValueLeader(data.isLeader);
     setModalData(data);
-  };
-
-  // queries users table and sets info to state
-  const updateRosterInState = async () => {
-    await supabase
-      .from('users')
-      .select()
-      .order('lastName', { ascending: true })
-      .then((response) => {
-        if (response.error) {
-          Alert.alert(response.error);
-        }
-        setUnitRoster(response.data);
-      });
   };
 
   // deletes user from user table as well as user.auth table

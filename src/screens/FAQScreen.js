@@ -30,7 +30,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import DropDownPicker from 'react-native-dropdown-picker';
 
 const App = () => {
-  const { FAQData, setFAQData, userData } = useContext(UserContext);
+  const { FAQData, setFAQData, userData, saveFAQDataToState } =
+    useContext(UserContext);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
@@ -83,19 +84,6 @@ const App = () => {
       setRefreshing(false);
     }, 1000);
   }, []);
-
-  // queries FAQ table and sets to state
-  const saveFAQDataToState = async () => {
-    await supabase
-      .from('faq')
-      .select(`id, question, answer, category`)
-      .then((response) => {
-        if (response.status >= 300) {
-          Alert.alert(response.statusText);
-        }
-        setFAQData(response.data);
-      });
-  };
 
   // adds FAQ question to DB from add form
   const addQuestionToDB = async (values) => {

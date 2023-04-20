@@ -222,6 +222,10 @@ export default function App() {
           setNewsletterWebViewValue,
           userTasks,
           setUserTasks,
+          saveRosterToState,
+          saveCommonContactsToState,
+          saveEmailRosterToState,
+          saveFAQDataToState,
         }}
       >
         <NavigationContainer>

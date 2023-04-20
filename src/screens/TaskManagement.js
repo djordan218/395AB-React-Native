@@ -43,6 +43,7 @@ export default function TaskManagement() {
     userTasks,
     setUserTasks,
     displayName,
+    saveRosterToState,
   } = useContext(UserContext);
   const [visibleAdd, setVisibleAdd] = useState(false);
   const [visibleEdit, setVisibleEdit] = useState(false);
@@ -52,18 +53,6 @@ export default function TaskManagement() {
   const hideModalEdit = () => setVisibleEdit(false);
   const [modalData, setModalData] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-
-  // saving roster to state - this is meant for the pull to refresh to reload entire rosters' tasks
-  const saveRosterToState = async () => {
-    await supabase
-      .from('users')
-      .select('*, tasks:tasks(*)')
-      .order('lastName', { ascending: true })
-      .order('id', { foreignTable: 'tasks', ascending: true })
-      .then((response) => {
-        setUnitRoster(response.data);
-      });
-  };
 
   // pull to refresh functionality
   const onRefresh = useCallback(() => {

@@ -30,8 +30,12 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function CommonContacts() {
-  const { commonContacts, setCommonContacts, userData } =
-    useContext(UserContext);
+  const {
+    commonContacts,
+    setCommonContacts,
+    userData,
+    saveCommonContactsToState,
+  } = useContext(UserContext);
   const [visibleAdd, setVisibleAdd] = useState(false);
   const [visibleEdit, setVisibleEdit] = useState(false);
   const [modalData, setModalData] = useState('');
@@ -43,26 +47,11 @@ export default function CommonContacts() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    updateCommonContactState();
+    saveCommonContactsToState();
     setTimeout(() => {
       setRefreshing(false);
     }, 1000);
   }, []);
-
-  // used to reset/reload common contact state
-  // used following add/update/delete
-  const updateCommonContactState = async (values) => {
-    await supabase
-      .from('common_contacts')
-      .select(`id, contact, description, website, email, phone`)
-      .order('contact', { ascending: true })
-      .then((response) => {
-        if (response.status >= 300) {
-          Alert.alert(response.statusText);
-        }
-        setCommonContacts(response.data);
-      });
-  };
 
   // inserts common contact from add form
   const addCommonContactToDB = async (values) => {
