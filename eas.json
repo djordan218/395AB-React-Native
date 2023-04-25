@@ -17,11 +17,11 @@
       }
     },
     "production": {
+      "cache": {
+        "key": "Invalidate"
+      },
       "ios": {
         "resourceClass": "m1-medium"
-      },
-      "cache": {
-        "key": "whatever"
       }
     }
   },
