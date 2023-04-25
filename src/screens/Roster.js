@@ -190,10 +190,11 @@ export default function Roster() {
       })
       .eq('id', values.id)
       .then((response) => {
+        console.log(response);
         if (response.error) {
           Alert.alert(response.error);
         }
-        updateRosterInState();
+        saveRosterToState();
         Alert.alert('Successfully edited Soldier data.');
       });
   };
@@ -567,10 +568,15 @@ export default function Roster() {
                         onSelectItem={(selectedItem) => {
                           setFieldValue('isLeader', selectedItem.value);
                         }}
-                        style={{ marginTop: 5, borderRadius: 3 }}
+                        style={{ marginTop: 5, borderRadius: 5 }}
                         placeholderStyle={{ marginLeft: 5, color: 'grey' }}
                         selectedItemContainerStyle={{ marginLeft: 10 }}
                         textStyle={{ marginLeft: 5, fontSize: 15 }}
+                        dropDownContainerStyle={{
+                          position: 'relative',
+                          top: 0,
+                          borderRadius: 0,
+                        }}
                       />
                     </View>
                     {errors.isLeader && (
@@ -604,10 +610,15 @@ export default function Roster() {
                         onSelectItem={(selectedItem) => {
                           setFieldValue('isAdmin', selectedItem.value);
                         }}
-                        style={{ marginTop: 5, borderRadius: 3 }}
+                        style={{ marginTop: 5, borderRadius: 5 }}
                         placeholderStyle={{ marginLeft: 5, color: 'grey' }}
                         selectedItemContainerStyle={{ marginLeft: 10 }}
                         textStyle={{ marginLeft: 5, fontSize: 15 }}
+                        dropDownContainerStyle={{
+                          position: 'relative',
+                          top: 0,
+                          borderRadius: 0,
+                        }}
                       />
                     </View>
                     {errors.isAdmin && (

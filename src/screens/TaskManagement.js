@@ -405,14 +405,32 @@ export default function TaskManagement() {
               onSubmit={(values) => {
                 const soldierId = modalData.id;
                 addTaskToSoldier(values, soldierId);
-                sendTaskEmailToSoldier(
-                  modalData.civEmail,
-                  `New 395AB Task for ${modalData.rank} ${modalData.firstName} ${modalData.lastName}!`,
-                  `You have been assigned a task by ${values.added_by}:\n\n ${
-                    values.task
-                  }\n\n You can respond to this email or text/call at ${
-                    JSON.parse(userData).phone
-                  } if you have any questions.`
+                Alert.alert(
+                  'Send email to notify Soldier of new task?',
+                  'This will pull up your email client with task info and pre-populated data. All ya gotta do is press send.',
+                  [
+                    {
+                      text: 'Cancel',
+                      onPress: () => console.log('Cancel Pressed'),
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'Send email',
+                      onPress: async () => {
+                        sendTaskEmailToSoldier(
+                          modalData.civEmail,
+                          `New 395AB Task for ${modalData.rank} ${modalData.firstName} ${modalData.lastName}!`,
+                          `You have been assigned a task by ${
+                            values.added_by
+                          }:\n\n- ${
+                            values.task
+                          }\n\n You can respond to this email or text/call at ${
+                            JSON.parse(userData).phone
+                          } if you have any questions.`
+                        );
+                      },
+                    },
+                  ]
                 );
               }}
               validationSchema={addTaskSchema}

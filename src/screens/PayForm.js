@@ -344,8 +344,8 @@ export default function PayForm() {
   };
 
   const handleRSTSubmit = () => {
-    if (userRmaHours < 4) {
-      return Alert.alert('You must have 4+ hours in order to process pay.');
+    if (userRstHours < 4) {
+      return Alert.alert('You must have 4+ RST hours in order to process pay.');
     } else {
       sendEmail(
         'jordan.e.kinsey.mil@army.mil',
