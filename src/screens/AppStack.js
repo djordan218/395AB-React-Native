@@ -18,6 +18,7 @@ import Roster from './Roster';
 import Schedule from './Schedule';
 import TaskManagement from './TaskManagement';
 import Tasks from './Tasks';
+import PayForm from './PayForm';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserContext from '../../hooks/UserContext';
@@ -96,12 +97,12 @@ function CustomDrawer(props) {
           justifyContent: 'center',
           alignContent: 'center',
           alignItems: 'center',
-          marginTop: -20,
+          marginTop: -30,
         }}
       >
         <Image
           source={RankImage[`${userRankImage}`]}
-          style={{ width: 125, height: 125, margin: 10 }}
+          style={{ width: 100, height: 100, margin: 10 }}
           resizeMode="contain"
         />
       </View>
@@ -127,7 +128,7 @@ function CustomDrawer(props) {
       <DrawerItem
         label="Home"
         labelStyle={{ color: 'black', fontWeight: 'bold' }}
-        style={{ color: 'black' }}
+        style={{ color: 'black', marginBottom: -5 }}
         icon={() => (
           <MaterialCommunityIcons name="home" size={24} color="black" />
         )}
@@ -146,22 +147,51 @@ function CustomDrawer(props) {
             >
               <Text style={{ fontWeight: 'bold' }}>My Tasks</Text>
               {userTasks.length > 0 ? (
-                <Badge
+                <View
                   style={{
-                    fontWeight: 'bold',
-                    color: 'white',
-                    fontSize: 12,
-                    backgroundColor: '#d90532',
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
                   }}
                 >
-                  {userTasks.length}
-                </Badge>
+                  <Badge
+                    size={20}
+                    style={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      fontSize: 13,
+                      backgroundColor: '#554d07',
+                      marginRight: 8,
+                    }}
+                  >
+                    {
+                      userTasks.filter((x, i) => {
+                        return x.status;
+                      }).length
+                    }
+                  </Badge>
+                  <Badge
+                    size={20}
+                    style={{
+                      fontWeight: 'bold',
+                      color: 'white',
+                      fontSize: 13,
+                      backgroundColor: '#d90532',
+                    }}
+                  >
+                    {
+                      userTasks.filter((x, i) => {
+                        return !x.status;
+                      }).length
+                    }
+                  </Badge>
+                </View>
               ) : null}
             </View>
           );
         }}
         labelStyle={{ color: 'black', fontWeight: 'bold' }}
-        style={{ color: 'black' }}
+        style={{ color: 'black', marginBottom: -5 }}
         icon={() => (
           <MaterialCommunityIcons
             name="clipboard-check-outline"
@@ -250,6 +280,9 @@ const isAdmin = () => {
           borderRightColor: 'black',
           borderRightWidth: StyleSheet.hairlineWidth,
         },
+        drawerItemStyle: {
+          marginBottom: -3,
+        },
         drawerLabelStyle: {
           fontWeight: 'bold',
           color: 'black',
@@ -321,6 +354,21 @@ const isAdmin = () => {
               </TouchableOpacity>
             );
           },
+        }}
+      />
+      <Drawer.Screen
+        name="Pay Form"
+        component={PayForm}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="cash" size={24} color="black" />
+          ),
+          drawerLabel: 'My 1380s',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
         }}
       />
       <Drawer.Screen
@@ -415,7 +463,7 @@ const isAdmin = () => {
               color="black"
             />
           ),
-          drawerLabel: 'Common Links',
+          drawerLabel: 'Common Forms',
           headerStyle: {
             height: 100,
             borderBottomWidth: 2,
@@ -573,6 +621,9 @@ const isLeader = () => {
           borderRightColor: 'black',
           borderRightWidth: StyleSheet.hairlineWidth,
         },
+        drawerItemStyle: {
+          marginBottom: -3,
+        },
         drawerLabelStyle: {
           fontWeight: 'bold',
           color: 'black',
@@ -645,6 +696,21 @@ const isLeader = () => {
               </TouchableOpacity>
             );
           },
+        }}
+      />
+      <Drawer.Screen
+        name="Pay Form"
+        component={PayForm}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="cash" size={24} color="black" />
+          ),
+          drawerLabel: 'My 1380s',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
         }}
       />
       <Drawer.Screen
@@ -739,7 +805,7 @@ const isLeader = () => {
               color="black"
             />
           ),
-          drawerLabel: 'Common Links',
+          drawerLabel: 'Common Forms',
           headerStyle: {
             height: 100,
             borderBottomWidth: 2,
@@ -882,6 +948,9 @@ const isNotAdmin = () => {
           borderRightColor: 'black',
           borderRightWidth: StyleSheet.hairlineWidth,
         },
+        drawerItemStyle: {
+          marginBottom: -3,
+        },
         drawerLabelStyle: {
           fontWeight: 'bold',
           color: 'black',
@@ -954,6 +1023,21 @@ const isNotAdmin = () => {
               </TouchableOpacity>
             );
           },
+        }}
+      />
+      <Drawer.Screen
+        name="Pay Form"
+        component={PayForm}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="cash" size={24} color="black" />
+          ),
+          drawerLabel: 'My 1380s',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
         }}
       />
       <Drawer.Screen
@@ -1048,7 +1132,7 @@ const isNotAdmin = () => {
               color="black"
             />
           ),
-          drawerLabel: 'Common Links',
+          drawerLabel: 'Common Forms',
           headerStyle: {
             height: 100,
             borderBottomWidth: 2,

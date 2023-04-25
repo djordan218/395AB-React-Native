@@ -203,10 +203,9 @@ export default function Tasks() {
             >
               {({ errors, handleChange, handleSubmit, values }) => (
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                  <KeyboardAwareScrollView
+                  <ScrollView
                     enableOnAndroid={true}
-                    extraScrollHeight={80}
-                    keyboardOpeningTime={0}
+                    keyboardShouldPersistTaps="handled"
                     contentContainerStyle={{
                       flex: 1,
                       backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -290,7 +289,7 @@ export default function Tasks() {
                         color="black"
                       />
                     </TouchableOpacity>
-                  </KeyboardAwareScrollView>
+                  </ScrollView>
                 </TouchableWithoutFeedback>
               )}
             </Formik>
@@ -394,8 +393,24 @@ export default function Tasks() {
               key={t.task}
               onPress={() => {
                 if (t.status === false) {
-                  setModalData(t);
-                  showModalTask();
+                  Alert.alert(
+                    'Do you want to leave a response?',
+                    'This will display under your task once marked complete.',
+                    [
+                      {
+                        text: 'No',
+                        onPress: () => updateTask(t),
+                        style: 'cancel',
+                      },
+                      {
+                        text: 'Leave response',
+                        onPress: async () => {
+                          setModalData(t);
+                          showModalTask();
+                        },
+                      },
+                    ]
+                  );
                 } else {
                   Alert.alert(
                     'Mark as incomplete?',

@@ -39,6 +39,9 @@ export default function App() {
   const [scheduleWebViewValue, setScheduleWebViewValue] = useState(1);
   const [newsletterWebViewValue, setNewsletterWebViewValue] = useState(1);
   const [userTasks, setUserTasks] = useState('');
+  const [userEbdls, setUserEbdls] = useState('');
+  const [userRmas, setUserRmas] = useState('');
+  const [userRsts, setUserRsts] = useState('');
 
   // checking users table and saving all to state
   const saveRosterToState = async () => {
@@ -143,7 +146,7 @@ export default function App() {
           formatUserRank(soldierData);
           await supabase
             .from('users')
-            .select('*, tasks:tasks(*)')
+            .select('*, tasks:tasks(*), ebdl:ebdl(*), rma:rma(*), rst:rst(*)')
             .eq('civEmail', JSON.parse(soldierData).civEmail)
             .order('id', { foreignTable: 'tasks', ascending: true })
             .then((response) => {
@@ -151,6 +154,9 @@ export default function App() {
               if (soldier !== undefined) {
                 setUserData(soldier);
                 setUserTasks(JSON.parse(soldier).tasks);
+                setUserEbdls(JSON.parse(soldier).ebdl);
+                setUserRmas(JSON.parse(soldier).rma);
+                setUserRsts(JSON.parse(soldier).rst);
               } else {
                 console.log('did not find the soldier..');
               }
@@ -222,6 +228,12 @@ export default function App() {
           setNewsletterWebViewValue,
           userTasks,
           setUserTasks,
+          userEbdls,
+          userRmas,
+          userRsts,
+          setUserEbdls,
+          setUserRmas,
+          setUserRsts,
           saveRosterToState,
           saveCommonContactsToState,
           saveEmailRosterToState,
