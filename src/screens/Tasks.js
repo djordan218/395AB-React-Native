@@ -45,6 +45,7 @@ export default function Tasks() {
   const [modalData, setModalData] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
+  // queries database, updates user tasks
   const refreshTasks = async () => {
     await supabase
       .from('users')
@@ -57,6 +58,7 @@ export default function Tasks() {
       });
   };
 
+  // handles pull to refresh - updates user tasks
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     refreshTasks();

@@ -75,6 +75,7 @@ export default function PayForm() {
     },
   ]);
 
+  // logs changed value of RST DATE calendar, saves to state
   const onChangeRstDate = (event, value) => {
     setRstDate(value);
     if (Platform.OS === 'android') {
@@ -82,6 +83,7 @@ export default function PayForm() {
     }
   };
 
+  // logs changed value of DAY MISSED calendar, saves to state
   const onChangeRstMissed = (event, value) => {
     setRstDateMissed(value);
     if (Platform.OS === 'android') {
@@ -89,6 +91,7 @@ export default function PayForm() {
     }
   };
 
+  // totals user hours for each, displays under each 1380
   const userEbdlHours =
     userEbdls.map((e) => e.ebdl_hours).reduce((a, b) => a + b, 0) / 2;
 
@@ -100,6 +103,7 @@ export default function PayForm() {
     .map((r) => r.rst_hours)
     .reduce((a, b) => a + b, 0);
 
+  // updates user EBDLs by checking database, updates state
   const updateUserEbdls = async () => {
     await supabase
       .from('users')
@@ -133,6 +137,7 @@ export default function PayForm() {
     Alert.alert('EBDL added. Thanks for knocking that out.');
   };
 
+  // deletes EBDL via id of EBDL
   const deleteEbdl = async (ebdl) => {
     await supabase
       .from('ebdl')
@@ -147,6 +152,7 @@ export default function PayForm() {
     Alert.alert('EBDL deleted.');
   };
 
+  // search bar onChange, sets spinner if text is over 1 char length, sets state of text changes
   const handleOnChangeText = (text) => {
     if (text.length >= 1) {
       setSpinnerVisibility(true);
@@ -157,6 +163,7 @@ export default function PayForm() {
     filterText(text);
   };
 
+  // filters dynamic search results based off of text in search bar
   const filterText = (text) => {
     text = text.toUpperCase();
     if (text.length >= 2) {
@@ -170,11 +177,14 @@ export default function PayForm() {
     }
   };
 
+  // deletes text when cancel "X" is clicked
   const handleCancel = () => {
     setSpinnerVisibility(false);
     setEbdlList([]);
   };
 
+  // handles logic of alert boxes when user clicks "submit for pay"
+  // if checks are passed, pulls up email cient with populated data
   const handleEBDLSubmit = () => {
     if (userEbdlHours < 4) {
       return Alert.alert('You must have 4+ hours in order to process pay.');
@@ -198,6 +208,7 @@ export default function PayForm() {
     }
   };
 
+  // generates list of EBDLs in text for email
   function listEbdls(ebdls) {
     let result = '';
     ebdls.map((e) => {
@@ -206,6 +217,7 @@ export default function PayForm() {
     return result;
   }
 
+  // pulls user from database, updates their RMAs and saves to state
   const updateUserRmas = async () => {
     await supabase
       .from('users')
@@ -218,6 +230,7 @@ export default function PayForm() {
       });
   };
 
+  // adds RMA to database, updates RMA state
   const addRma = async (rma, userId) => {
     await supabase
       .from('rma')
@@ -235,6 +248,8 @@ export default function PayForm() {
     Alert.alert('RMA added to your list.');
   };
 
+  // handles logic of pressing "+" icon
+  // adds one to rma_hours in database, updates state
   const addHourToRma = async (rma, rmaHour, userId) => {
     console.log(rma);
     await supabase
@@ -252,6 +267,7 @@ export default function PayForm() {
       });
   };
 
+  // deletes RMA via id
   const deleteRma = async (rma) => {
     await supabase
       .from('rma')
@@ -265,6 +281,8 @@ export default function PayForm() {
       });
   };
 
+  // handles logic when user presses "submit RMA for pay" button
+  // if all checks are passed, pulls up email client with generated info to adminstrative staff
   const handleRMASubmit = () => {
     if (userRmaHours < 4) {
       return Alert.alert('You must have 4+ hours in order to process pay.');
@@ -291,6 +309,7 @@ export default function PayForm() {
     }
   };
 
+  // function that handles structure of listing RMAs in email
   function listRmas(rmas) {
     let result = '';
     rmas.map((r) => {
@@ -299,6 +318,7 @@ export default function PayForm() {
     return result;
   }
 
+  // pulls data from database, updates userRst state
   const updateUserRsts = async () => {
     await supabase
       .from('users')
@@ -311,6 +331,7 @@ export default function PayForm() {
       });
   };
 
+  // adds RST to database, updates state
   const addRst = async (hours, userId) => {
     await supabase
       .from('rst')
@@ -329,6 +350,7 @@ export default function PayForm() {
     Alert.alert('RST added.');
   };
 
+  // deletes RST via id, updates state
   const deleteRst = async (rst) => {
     await supabase
       .from('rst')
@@ -343,6 +365,8 @@ export default function PayForm() {
     Alert.alert('RST deleted.');
   };
 
+  // handles logic of RSTs when user presses "submit for pay" button
+  // if all checks are passed, pulls up email client and generates email with RSTs
   const handleRSTSubmit = () => {
     if (userRstHours < 4) {
       return Alert.alert('You must have 4+ RST hours in order to process pay.');
@@ -361,6 +385,7 @@ export default function PayForm() {
     }
   };
 
+  // generates RST text for email
   function listRsts(rsts) {
     let result = '';
     rsts.map((r) => {
@@ -369,11 +394,13 @@ export default function PayForm() {
     return result;
   }
 
+  // schema for RMA form, user must provide name and number of hours
   const rmaSchema = Yup.object().shape({
     rma_name: Yup.string().required('You must fill this out.'),
     rma_hours: Yup.number().required('Number of hours required'),
   });
 
+  // schema for RST, focuses mainly on providing if they did a "full" or "half" day
   const rstSchema = Yup.object().shape({
     hours: Yup.string().required('You must pick one.'),
   });

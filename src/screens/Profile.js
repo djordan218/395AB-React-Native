@@ -114,15 +114,6 @@ export default function Profile() {
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
-  const PasswordSchema = Yup.object().shape({
-    password: Yup.string()
-      .min(8, ({ min }) => `Password must be at least ${min} characters`)
-      .required('Password is required'),
-    passwordConfirm: Yup.string()
-      .min(8, ({ min }) => `Password must be at least ${min} characters`)
-      .required('Password is required'),
-  });
-
   // updates user data in the users table in DB
   // saves data to asyncstorage
   const updateUserInDB = async (values) => {
@@ -183,6 +174,15 @@ export default function Profile() {
       console.log(err);
     }
   };
+
+  const PasswordSchema = Yup.object().shape({
+    password: Yup.string()
+      .min(8, ({ min }) => `Password must be at least ${min} characters`)
+      .required('Password is required'),
+    passwordConfirm: Yup.string()
+      .min(8, ({ min }) => `Password must be at least ${min} characters`)
+      .required('Password is required'),
+  });
 
   const ProfileEditSchema = Yup.object().shape({
     civEmail: Yup.string().email('Invalid email').required('Email is required'),

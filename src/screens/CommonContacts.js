@@ -45,6 +45,7 @@ export default function CommonContacts() {
   const hideModalEdit = () => setVisibleEdit(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  // handles pull to refresh - queries database and updates CommonContacts state
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     saveCommonContactsToState();

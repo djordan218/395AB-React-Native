@@ -41,6 +41,8 @@ export default function SoldierManagement() {
     setModalData(data);
   };
   const [refreshing, setRefreshing] = useState(false);
+
+  // queries database, updates email roster to state
   const saveEmailRosterToState = async () => {
     await supabase
       .from('emailRoster')
@@ -51,6 +53,7 @@ export default function SoldierManagement() {
       });
   };
 
+  // handles pull to refresh - queries database and updates email roster state
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     saveEmailRosterToState();

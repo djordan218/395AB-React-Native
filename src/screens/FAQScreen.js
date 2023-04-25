@@ -77,6 +77,7 @@ const App = () => {
 
   const [refreshing, setRefreshing] = useState(false);
 
+  // handles pull to refresh - queries database and updates FAQ state
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     saveFAQDataToState();

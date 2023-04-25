@@ -140,6 +140,7 @@ export default function Roster() {
 
   const [refreshing, setRefreshing] = useState(false);
 
+  // handles pull to refresh - updates entire roster
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     saveRosterToState();

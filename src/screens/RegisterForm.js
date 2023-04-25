@@ -110,6 +110,8 @@ export default function RegisterForm({ navigation }) {
       value: 'COL',
     },
   ]);
+
+  // series of ref that handles going to next textInput when user presses "next"
   const ref_milEmail = useRef();
   const ref_password = useRef();
   const ref_firstName = useRef();
