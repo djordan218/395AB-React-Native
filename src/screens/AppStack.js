@@ -28,6 +28,7 @@ import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../hooks/supabase';
 import { Session } from '@supabase/supabase-js';
 import WebView from 'react-native-webview';
+import MissionPoll from './MissionPoll';
 
 const Drawer = createDrawerNavigator();
 
@@ -576,6 +577,40 @@ const isAdmin = () => {
             borderBottomWidth: 2,
           },
           headerTitle: '',
+        }}
+      />
+      <Drawer.Screen
+        name="Send Poll"
+        component={MissionPoll}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="clipboard-check-outline"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'Send Poll',
+          headerStyle: {
+            height: 100,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  reloadTasks();
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
         }}
       />
     </Drawer.Navigator>

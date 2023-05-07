@@ -13,6 +13,7 @@ import {
   Keyboard,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import qs from 'qs';
 import {
@@ -33,6 +34,7 @@ import { Session } from '@supabase/supabase-js';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useInterpolateConfig } from 'react-native-reanimated';
+import LoadingScreen from './LoadingScreen';
 
 export default function TaskManagement() {
   const {
@@ -53,13 +55,17 @@ export default function TaskManagement() {
   const hideModalEdit = () => setVisibleEdit(false);
   const [modalData, setModalData] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // pull to refresh functionality
   const onRefresh = useCallback(() => {
+    setLoading(true);
     setRefreshing(true);
     saveRosterToState();
+
     setTimeout(() => {
       setRefreshing(false);
+      setLoading(false);
     }, 1000);
   }, []);
 
@@ -68,10 +74,39 @@ export default function TaskManagement() {
     setModalData(data);
   };
 
+  async function sendPushNotification(expoPushToken, task) {
+    const message = {
+      to: expoPushToken,
+      sound: 'default',
+      title: 'You have a new 395th task!',
+      body: `${task.task} by ${task.added_by}`,
+    };
+
+    await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Accept-encoding': 'gzip, deflate',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    });
+  }
+
   // adds the task to the DB - tasks table
   // reloads the unit roster state
   // reloads user's task in case they added a task to themselves
   const addTaskToSoldier = async (values, data) => {
+    let userPushToken;
+    setLoading(true);
+    await supabase
+      .from('users')
+      .select()
+      .eq('id', data)
+      .then((response) => {
+        userPushToken = JSON.stringify(response.data[0].push_token);
+        console.log(userPushToken);
+      });
     await supabase
       .from('tasks')
       .insert({
@@ -110,6 +145,8 @@ export default function TaskManagement() {
         const soldier = JSON.stringify(response.data[0]);
         setUserTasks(JSON.parse(soldier).tasks);
       });
+    setLoading(false);
+    sendPushNotification(JSON.parse(userPushToken), values);
   };
 
   // updates the task to either true or false
@@ -157,6 +194,7 @@ export default function TaskManagement() {
 
   // deletes the task, updates roster and userTask state
   const deleteTask = async (id) => {
+    setLoading(true);
     await supabase
       .from('tasks')
       .delete()
@@ -189,6 +227,7 @@ export default function TaskManagement() {
         const soldier = JSON.stringify(response.data[0]);
         setUserTasks(JSON.parse(soldier).tasks);
       });
+    setLoading(false);
   };
 
   // edits task info
@@ -405,33 +444,33 @@ export default function TaskManagement() {
               onSubmit={(values) => {
                 const soldierId = modalData.id;
                 addTaskToSoldier(values, soldierId);
-                Alert.alert(
-                  'Send email to notify Soldier of new task?',
-                  'This will pull up your email client with task info and pre-populated data. All ya gotta do is press send.',
-                  [
-                    {
-                      text: 'Cancel',
-                      onPress: () => console.log('Cancel Pressed'),
-                      style: 'cancel',
-                    },
-                    {
-                      text: 'Send email',
-                      onPress: async () => {
-                        sendTaskEmailToSoldier(
-                          modalData.civEmail,
-                          `New 395AB Task for ${modalData.rank} ${modalData.firstName} ${modalData.lastName}!`,
-                          `You have been assigned a task by ${
-                            values.added_by
-                          }:\n\n- ${
-                            values.task
-                          }\n\n You can respond to this email or text/call at ${
-                            JSON.parse(userData).phone
-                          } if you have any questions.`
-                        );
-                      },
-                    },
-                  ]
-                );
+                // Alert.alert(
+                //   'Send email to notify Soldier of new task?',
+                //   'This will pull up your email client with task info and pre-populated data. All ya gotta do is press send.',
+                //   [
+                //     {
+                //       text: 'Cancel',
+                //       onPress: () => console.log('Cancel Pressed'),
+                //       style: 'cancel',
+                //     },
+                //     {
+                //       text: 'Send email',
+                //       onPress: async () => {
+                //         sendTaskEmailToSoldier(
+                //           modalData.civEmail,
+                //           `New 395AB Task for ${modalData.rank} ${modalData.firstName} ${modalData.lastName}!`,
+                //           `You have been assigned a task by ${
+                //             values.added_by
+                //           }:\n\n- ${
+                //             values.task
+                //           }\n\n You can respond to this email or text/call at ${
+                //             JSON.parse(userData).phone
+                //           } if you have any questions.`
+                //         );
+                //       },
+                //     },
+                //   ]
+                // );
               }}
               validationSchema={addTaskSchema}
               validateOnChange={false}
@@ -868,6 +907,7 @@ export default function TaskManagement() {
           </List.Accordion>
         ))}
       </ScrollView>
+      {loading ? <LoadingScreen /> : null}
     </SafeAreaView>
   );
 }

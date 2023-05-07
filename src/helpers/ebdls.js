@@ -31,7 +31,7 @@ export const ebdls = [
   },
   {
     id: 7,
-    name: 'HIPAA AND PRIVACY ACT TRAINING',
+    name: 'HIPPA AND PRIVACY ACT TRAINING',
     hours: 1,
   },
   {

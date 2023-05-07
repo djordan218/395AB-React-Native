@@ -19,9 +19,12 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { supabase } from '../../hooks/supabase';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Base64 } from 'js-base64';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
 
 export default function Profile() {
-  const { userData, setUserData, loadData } = useContext(UserContext);
+  const { userData, setUserData, loadData, expoPushToken, setExpoPushToken } =
+    useContext(UserContext);
   const [snackbar, setSnackbar] = useState(false);
   const [passwordVisibility, setPasswordVisibility] = useState(true);
   const [passwordConfirmVisibility, setPasswordConfirmVisibility] =
@@ -117,6 +120,9 @@ export default function Profile() {
   // updates user data in the users table in DB
   // saves data to asyncstorage
   const updateUserInDB = async (values) => {
+    registerForPushNotificationsAsync().then((token) =>
+      setExpoPushToken(token)
+    );
     await supabase
       .from('users')
       .update({
@@ -128,6 +134,8 @@ export default function Profile() {
         phone: values.phone,
         dod_id: values.dod_id,
         isAdmin: values.isAdmin,
+        isLeader: values.isLeader,
+        push_token: expoPushToken,
       })
       .eq('id', JSON.parse(userData).id)
       .then((response) => {
@@ -167,6 +175,8 @@ export default function Profile() {
         phone: values.phone,
         dod_id: values.dod_id,
         isAdmin: values.isAdmin,
+        isLeader: values.isLeader,
+        push_token: expoPushToken,
       };
       await AsyncStorage.setItem('395soldier', JSON.stringify(soldierData));
       loadData();
@@ -174,6 +184,36 @@ export default function Profile() {
       console.log(err);
     }
   };
+
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Device.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+    return token;
+  }
 
   const PasswordSchema = Yup.object().shape({
     password: Yup.string()
@@ -211,6 +251,7 @@ export default function Profile() {
         phone: JSON.parse(userData).phone || '',
         dod_id: JSON.parse(userData).dod_id || '',
         isAdmin: JSON.parse(userData).isAdmin,
+        isLeader: JSON.parse(userData).isLeader,
       }}
       onSubmit={(values) => {
         updateUserInDB(values);

@@ -11,6 +11,8 @@ import { Session } from '@supabase/supabase-js';
 import SoldierManagement from './src/screens/SoldierManagement';
 import 'react-native-gesture-handler';
 import { checkPluginState } from 'react-native-reanimated/lib/reanimated2/core';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
 
 export default function App() {
   const [userData, setUserData] = useState({
@@ -25,7 +27,9 @@ export default function App() {
     dod_id: '',
     isAdmin: '',
     isLeader: '',
+    pushToken: '',
   });
+  const [expoPushToken, setExpoPushToken] = useState('');
   const [unitRoster, setUnitRoster] = useState('');
   const [signedIn, setSignedIn] = useState(false);
   const [displayName, setDisplayName] = useState('');
@@ -114,34 +118,33 @@ export default function App() {
   };
 
   // sets and loads session data from user.auth table
+  // saves FAQ data & sets to state
+  // saves email roster & sets to state
   useEffect(() => {
-    console.log('running session useEffect');
+    console.log('authenticating session and loading non-user data');
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
+    saveRosterToState();
+    saveFAQDataToState();
+    saveEmailRosterToState();
+    saveCommonContactsToState();
   }, []);
 
   // if '395soldier' is in AsyncStorage
-  // saves FAQ data & sets to state
-  // saves email roster & sets to state
   // formats display name & sets to state
   // formats user rank & sets to state
   // sets signed in = true
   const loadData = async () => {
-    console.log('running useeffect');
+    console.log('loading user data');
     setInfoLoaded(false);
     try {
       const soldierData = await AsyncStorage.getItem('395soldier');
       if (soldierData !== null || undefined || '') {
         try {
-          console.log('soldier data present, adding things to state');
-          saveRosterToState();
-          saveFAQDataToState();
-          saveEmailRosterToState();
-          saveCommonContactsToState();
           formatDisplayName(soldierData);
           formatUserRank(soldierData);
           await supabase
@@ -206,6 +209,8 @@ export default function App() {
       <StatusBar animated={true} barStyle={'dark-content'} />
       <UserContext.Provider
         value={{
+          infoLoaded,
+          setInfoLoaded,
           userData,
           setUserData,
           setSignedIn,
@@ -238,6 +243,8 @@ export default function App() {
           saveCommonContactsToState,
           saveEmailRosterToState,
           saveFAQDataToState,
+          expoPushToken,
+          setExpoPushToken,
         }}
       >
         <NavigationContainer>
