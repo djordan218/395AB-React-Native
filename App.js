@@ -47,6 +47,14 @@ export default function App() {
   const [userRmas, setUserRmas] = useState('');
   const [userRsts, setUserRsts] = useState('');
 
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+
   // checking users table and saving all to state
   const saveRosterToState = async () => {
     await supabase
@@ -85,7 +93,7 @@ export default function App() {
   const saveCommonContactsToState = async () => {
     await supabase
       .from('common_contacts')
-      .select(`id, contact, description, website, email, phone`)
+      .select()
       .order('contact', { ascending: true })
       .then((response) => {
         setCommonContacts(response.data);

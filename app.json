@@ -27,7 +27,8 @@
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "package": "com.djordan218.threeninefive"
+      "package": "com.djordan218.threeninefive",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/63rd.png"

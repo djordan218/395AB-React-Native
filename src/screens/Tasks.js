@@ -29,6 +29,9 @@ import { supabase } from '../../hooks/supabase';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Dialog from 'react-native-dialog';
+import LoadingScreen from './LoadingScreen';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
 
 export default function Tasks() {
   const {
@@ -44,6 +47,7 @@ export default function Tasks() {
   const hideModalTask = () => setVisibleTask(false);
   const [modalData, setModalData] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // queries database, updates user tasks
   const refreshTasks = async () => {
@@ -78,6 +82,7 @@ export default function Tasks() {
   // queries and edits the userTask state in case the user edited their own task
   // then queries and edits Unit Roster state to update the roster with completed task
   async function updateTask(task) {
+    setLoading(true);
     await supabase
       .from('tasks')
       .update({
@@ -115,6 +120,8 @@ export default function Tasks() {
         }
         setUnitRoster(response.data);
       });
+    setLoading(false);
+    sendPushNotification(task.added_by_push_token, task);
   }
 
   // this updates a task as INCOMPLETE, marks other columns as null
@@ -166,6 +173,25 @@ export default function Tasks() {
     return date;
   }
 
+  async function sendPushNotification(expoPushToken, task) {
+    const message = {
+      to: expoPushToken,
+      sound: 'default',
+      title: `Assigned task complete!`,
+      body: `${displayName} completed task: ${task.task}`,
+    };
+
+    await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Accept-encoding': 'gzip, deflate',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    });
+  }
+
   // needed this to set the height of window for ternary operator when a user doesn't have a task it displays text info
   const { width, height } = Dimensions.get('window');
 
@@ -193,6 +219,11 @@ export default function Tasks() {
                 id: modalData.id,
                 task: modalData.task,
                 status: modalData.status,
+                created_at: modalData.created_at,
+                soldier_id: modalData.soldier_id,
+                added_by: modalData.added_by,
+                added_by_soldier_id: modalData.added_by_soldier_id,
+                added_by_push_token: modalData.added_by_push_token,
                 response: '',
               }}
               onSubmit={(values) => {
@@ -537,6 +568,7 @@ export default function Tasks() {
           ))
         )}
       </ScrollView>
+      {loading ? <LoadingScreen /> : null}
     </SafeAreaView>
   );
 }

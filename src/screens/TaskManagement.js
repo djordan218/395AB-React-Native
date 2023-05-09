@@ -23,6 +23,7 @@ import {
   TextInput,
   Button,
   Badge,
+  IconButton,
 } from 'react-native-paper';
 import UserContext from '../../hooks/UserContext';
 import * as All from '../components/RankImages';
@@ -33,8 +34,10 @@ import { supabase } from '../../hooks/supabase';
 import { Session } from '@supabase/supabase-js';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useInterpolateConfig } from 'react-native-reanimated';
+import { clockRunning, useInterpolateConfig } from 'react-native-reanimated';
 import LoadingScreen from './LoadingScreen';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
 
 export default function TaskManagement() {
   const {
@@ -53,6 +56,21 @@ export default function TaskManagement() {
   const hideModalAdd = () => setVisibleAdd(false);
   const showModalEdit = () => setVisibleEdit(true);
   const hideModalEdit = () => setVisibleEdit(false);
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [visibleSelectAdd, setVisibleSelectAdd] = useState(false);
+  const showModalSelectAdd = () => setVisibleSelectAdd(true);
+  const hideModalSelectAdd = () => setVisibleSelectAdd(false);
+  const [dropdownValues, setDropdownValues] = useState(
+    unitRoster.map((s) => {
+      return {
+        label: s.rank + ' ' + s.firstName + ' ' + s.lastName,
+        value: s.id,
+      };
+    })
+  );
+
   const [modalData, setModalData] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -75,10 +93,13 @@ export default function TaskManagement() {
   };
 
   async function sendPushNotification(expoPushToken, task) {
+    console.log(
+      `sending push notification to ${expoPushToken} for ${task.task}`
+    );
     const message = {
       to: expoPushToken,
       sound: 'default',
-      title: 'You have a new 395th task!',
+      title: 'New 395th task assigned!',
       body: `${task.task} by ${task.added_by}`,
     };
 
@@ -98,14 +119,12 @@ export default function TaskManagement() {
   // reloads user's task in case they added a task to themselves
   const addTaskToSoldier = async (values, data) => {
     let userPushToken;
-    setLoading(true);
     await supabase
       .from('users')
       .select()
       .eq('id', data)
       .then((response) => {
         userPushToken = JSON.stringify(response.data[0].push_token);
-        console.log(userPushToken);
       });
     await supabase
       .from('tasks')
@@ -115,24 +134,24 @@ export default function TaskManagement() {
         created_at: values.created_at,
         soldier_id: data,
         added_by: values.added_by,
+        added_by_soldier_id: values.added_by_soldier_id,
+        added_by_push_token: values.added_by_push_token,
       })
       .then((response) => {
         if (response.status >= 300) {
           Alert.alert(response.statusText);
         }
-        hideModalAdd();
       });
-    await supabase
-      .from('users')
-      .select('*, tasks:tasks(*)')
-      .order('lastName', { ascending: true })
-      .order('id', { foreignTable: 'tasks', ascending: true })
-      .then((response) => {
-        if (response.status >= 300) {
-          Alert.alert(response.statusText);
-        }
-        setUnitRoster(response.data);
-      });
+    sendPushNotification(JSON.parse(userPushToken), values);
+  };
+
+  const addTaskToSelectedSoldiers = async (values, data) => {
+    await values.recipients.map((s) => {
+      addTaskToSoldier(values, s);
+    });
+  };
+
+  const refreshUserTasks = async () => {
     await supabase
       .from('users')
       .select('*, tasks:tasks(*)')
@@ -145,8 +164,6 @@ export default function TaskManagement() {
         const soldier = JSON.stringify(response.data[0]);
         setUserTasks(JSON.parse(soldier).tasks);
       });
-    setLoading(false);
-    sendPushNotification(JSON.parse(userPushToken), values);
   };
 
   // updates the task to either true or false
@@ -246,29 +263,6 @@ export default function TaskManagement() {
           Alert.alert(response.statusText);
         }
       });
-    await supabase
-      .from('users')
-      .select('*, tasks:tasks(*)')
-      .order('lastName', { ascending: true })
-      .order('id', { foreignTable: 'tasks', ascending: true })
-      .then((response) => {
-        if (response.status >= 300) {
-          Alert.alert(response.statusText);
-        }
-        setUnitRoster(response.data);
-      });
-    await supabase
-      .from('users')
-      .select('*, tasks:tasks(*)')
-      .eq('id', JSON.parse(userData).id)
-      .order('id', { foreignTable: 'tasks', ascending: true })
-      .then((response) => {
-        if (response.status >= 300) {
-          Alert.alert(response.statusText);
-        }
-        const soldier = JSON.stringify(response.data[0]);
-        setUserTasks(JSON.parse(soldier).tasks);
-      });
   };
 
   // pulls up user's native email client with pre-populated data with task
@@ -321,7 +315,7 @@ export default function TaskManagement() {
   });
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ backgroundColor: 'white' }}>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -353,6 +347,22 @@ export default function TaskManagement() {
             marginTop: -10,
           }}
         />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignSelf: 'center',
+            backgroundColor: 'white',
+          }}
+        >
+          <IconButton
+            icon="plus-circle-outline"
+            iconColor={'#646c5c'}
+            size={30}
+            onPress={showModalSelectAdd}
+            style={{ marginTop: -25, marginBottom: 5 }}
+          />
+        </View>
         <List.Accordion
           style={{
             borderTopColor: 'black',
@@ -391,6 +401,16 @@ export default function TaskManagement() {
                     />{' '}
                     underneath their name.
                     {'\n'}
+                    {'\n'}
+                    You can also add a task to more than one Soldier by using a
+                    dropdown menu when pressing the{' '}
+                    <MaterialCommunityIcons
+                      name="plus-circle-outline"
+                      size={15}
+                      color="#554d07"
+                    />{' '}
+                    above.
+                    {'\n'}
                     {'\n'}Once a soldier has marked the task complete - the{' '}
                     <MaterialCommunityIcons
                       name="clipboard-remove"
@@ -402,9 +422,9 @@ export default function TaskManagement() {
                       name="clipboard-check"
                       size={15}
                       color="#554d07"
-                    />
+                    />{' '}
                     and display when it was completed and who marked it
-                    complete. {'\n'}
+                    complete. You will also receive a notification. {'\n'}
                     {'\n'}You can delete the task from their list at any time by
                     pressing on the{' '}
                     <MaterialCommunityIcons
@@ -439,38 +459,18 @@ export default function TaskManagement() {
                 task: '',
                 status: false,
                 added_by: displayName,
+                added_by_soldier_id: JSON.parse(userData).id,
+                added_by_push_token: JSON.parse(userData).push_token,
                 created_at: new Date().toLocaleDateString(),
               }}
-              onSubmit={(values) => {
+              onSubmit={async (values) => {
+                hideModalAdd();
+                setLoading(true);
                 const soldierId = modalData.id;
-                addTaskToSoldier(values, soldierId);
-                // Alert.alert(
-                //   'Send email to notify Soldier of new task?',
-                //   'This will pull up your email client with task info and pre-populated data. All ya gotta do is press send.',
-                //   [
-                //     {
-                //       text: 'Cancel',
-                //       onPress: () => console.log('Cancel Pressed'),
-                //       style: 'cancel',
-                //     },
-                //     {
-                //       text: 'Send email',
-                //       onPress: async () => {
-                //         sendTaskEmailToSoldier(
-                //           modalData.civEmail,
-                //           `New 395AB Task for ${modalData.rank} ${modalData.firstName} ${modalData.lastName}!`,
-                //           `You have been assigned a task by ${
-                //             values.added_by
-                //           }:\n\n- ${
-                //             values.task
-                //           }\n\n You can respond to this email or text/call at ${
-                //             JSON.parse(userData).phone
-                //           } if you have any questions.`
-                //         );
-                //       },
-                //     },
-                //   ]
-                // );
+                await addTaskToSoldier(values, soldierId);
+                await refreshUserTasks();
+                await saveRosterToState();
+                setLoading(false);
               }}
               validationSchema={addTaskSchema}
               validateOnChange={false}
@@ -578,9 +578,13 @@ export default function TaskManagement() {
                 task: modalData.task,
                 status: modalData.status,
               }}
-              onSubmit={(values) => {
-                editTask(values, modalData.id);
+              onSubmit={async (values) => {
+                setLoading(true);
                 hideModalEdit();
+                await editTask(values, modalData.id);
+                await refreshUserTasks();
+                await saveRosterToState();
+                setLoading(false);
               }}
               validationSchema={addTaskSchema}
               validateOnChange={false}
@@ -660,6 +664,202 @@ export default function TaskManagement() {
                       Edit Task
                     </Button>
                     <TouchableOpacity onPress={hideModalEdit}>
+                      <MaterialCommunityIcons
+                        style={{ marginTop: 20 }}
+                        name="close-circle-outline"
+                        size={24}
+                        color="black"
+                      />
+                    </TouchableOpacity>
+                  </KeyboardAwareScrollView>
+                </TouchableWithoutFeedback>
+              )}
+            </Formik>
+          </Modal>
+        </Portal>
+        <Portal>
+          <Modal
+            visible={visibleSelectAdd}
+            onDismiss={hideModalSelectAdd}
+            contentContainerStyle={{
+              backgroundColor: 'white',
+              height: 500,
+              flex: 1,
+            }}
+          >
+            <Formik
+              initialValues={{
+                task: '',
+                status: false,
+                added_by: displayName,
+                added_by_soldier_id: JSON.parse(userData).id,
+                added_by_push_token: JSON.parse(userData).push_token,
+                created_at: new Date().toLocaleDateString(),
+                recipients: dropdownValues.map((s) => {
+                  return s.value;
+                }),
+              }}
+              onSubmit={async (values) => {
+                try {
+                  hideModalSelectAdd();
+                  const soldierId = modalData.id;
+                  setLoading(true);
+                  await addTaskToSelectedSoldiers(values, soldierId);
+                  setTimeout(async () => {
+                    await refreshUserTasks();
+                    await saveRosterToState();
+                  }, 2000);
+                  setValue(null);
+                  setLoading(false);
+                  Alert.alert('Tasks assigned.');
+                } catch {
+                  setLoading(false);
+                }
+              }}
+              validationSchema={addTaskSchema}
+              validateOnChange={false}
+              validateOnBlur={false}
+            >
+              {({
+                errors,
+                handleChange,
+                handleSubmit,
+                values,
+                setFieldValue,
+              }) => (
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                  <KeyboardAwareScrollView
+                    enableOnAndroid={true}
+                    extraScrollHeight={40}
+                    keyboardOpeningTime={0}
+                    contentContainerStyle={{
+                      flex: 1,
+                      backgroundColor: '#fff',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: 'bold',
+                        marginBottom: 10,
+                        color: 'black',
+                        fontSize: 18,
+                      }}
+                    >
+                      Add Task
+                    </Text>
+
+                    <View>
+                      <TextInput
+                        multiline={true}
+                        style={{
+                          width: 300,
+                          maxHeight: 200,
+                          backgroundColor: 'white',
+                          color: 'black',
+                          textAlign: 'auto',
+                        }}
+                        contentStyle={{ color: 'black' }}
+                        mode="outlined"
+                        outlineColor="black"
+                        activeOutlineColor="#5e5601"
+                        label="Enter Soldier task"
+                        placeholder="Required"
+                        placeholderTextColor="grey"
+                        autoCompleteType="off"
+                        value={values.task}
+                        onChangeText={handleChange('task')}
+                      />
+                    </View>
+                    {errors.task && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: 'red',
+                          marginBottom: 2,
+                          marginTop: 2,
+                        }}
+                      >
+                        {errors.task}
+                      </Text>
+                    )}
+                    <View
+                      style={{
+                        width: 300,
+                        backgroundColor: 'white',
+                        zIndex: 300,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          textAlign: 'center',
+                          marginTop: 5,
+                        }}
+                      >
+                        Select Soldiers to add task to.{`\n`} If none are
+                        selected, all are tasked.
+                      </Text>
+                      <DropDownPicker
+                        open={open}
+                        value={value}
+                        items={dropdownValues}
+                        setOpen={setOpen}
+                        setValue={setValue}
+                        setItems={setDropdownValues}
+                        multiple={true}
+                        multipleText={value && `${value.length} tasked`}
+                        placeholder="Select Soldiers to assign task"
+                        onSelectItem={(selectedItem) => {
+                          if (selectedItem.length == 0) {
+                            setFieldValue(
+                              'recipients',
+                              dropdownValues.map((s) => {
+                                return s.value;
+                              })
+                            );
+                          } else {
+                            setFieldValue(
+                              'recipients',
+                              selectedItem.map((s) => {
+                                return s.value;
+                              })
+                            );
+                          }
+                        }}
+                        style={{ marginTop: 5, borderRadius: 3 }}
+                        placeholderStyle={{ marginLeft: 5, color: 'grey' }}
+                        selectedItemContainerStyle={{ marginLeft: 10 }}
+                        textStyle={{ marginLeft: 5, fontSize: 15 }}
+                        dropDownContainerStyle={{
+                          position: 'relative',
+                          top: 0,
+                        }}
+                        listMode="SCROLLVIEW"
+                        scrollViewProps={{
+                          nestedScrollEnabled: true,
+                        }}
+                      />
+                    </View>
+                    <Button
+                      mode="contained"
+                      onPress={() => {
+                        handleSubmit();
+                      }}
+                      title="Submit"
+                      labelStyle={{ fontWeight: 'bold', color: 'white' }}
+                      style={{
+                        backgroundColor: '#5e5601',
+                        width: 200,
+                        borderColor: 'black',
+                        borderWidth: 1,
+                        marginTop: 10,
+                      }}
+                    >
+                      Send Task & Notify
+                    </Button>
+                    <TouchableOpacity onPress={hideModalSelectAdd}>
                       <MaterialCommunityIcons
                         style={{ marginTop: 20 }}
                         name="close-circle-outline"

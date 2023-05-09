@@ -21,6 +21,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { Base64 } from 'js-base64';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function Profile() {
   const { userData, setUserData, loadData, expoPushToken, setExpoPushToken } =
@@ -113,6 +114,151 @@ export default function Profile() {
       value: 'COL',
     },
   ]);
+  const [openPrimaryInstrument, setOpenPrimaryInstrument] = useState(false);
+  const [valuePrimaryInstrument, setValuePrimaryInstrument] = useState(null);
+  const [primaryInstruments, setPrimaryInstruments] = useState([
+    {
+      label: 'Engineer',
+      value: 'Engineer',
+    },
+    {
+      label: 'Bass',
+      value: 'Bass',
+    },
+    {
+      label: 'Bassoon',
+      value: 'Bassoon',
+    },
+    {
+      label: 'Clarinet',
+      value: 'Clarinet',
+    },
+    {
+      label: 'Commander',
+      value: 'Commander',
+    },
+    {
+      label: 'Drums',
+      value: 'Drums',
+    },
+    {
+      label: 'Euphonium',
+      value: 'Euphonium',
+    },
+    {
+      label: 'Flute',
+      value: 'Flute',
+    },
+    {
+      label: 'Guitar',
+      value: 'Guitar',
+    },
+    {
+      label: 'Horn',
+      value: 'Horn',
+    },
+    {
+      label: 'Oboe',
+      value: 'Oboe',
+    },
+    {
+      label: 'Piano',
+      value: 'Piano',
+    },
+    {
+      label: 'Saxophone',
+      value: 'Saxophone',
+    },
+    {
+      label: 'Trombone',
+      value: 'Trombone',
+    },
+    {
+      label: 'Trumpet',
+      value: 'Trumpet',
+    },
+    {
+      label: 'Tuba',
+      value: 'Tuba',
+    },
+    {
+      label: 'Vocalist',
+      value: 'Vocalist',
+    },
+  ]);
+  const [openSecondaryInstrument, setOpenSecondaryInstrument] = useState(false);
+  const [valueSecondaryInstrument, setValueSecondaryInstrument] =
+    useState(null);
+  const [secondaryInstruments, setSecondaryInstruments] = useState([
+    {
+      label: 'Engineer',
+      value: 'Engineer',
+    },
+    {
+      label: 'Bass',
+      value: 'Bass',
+    },
+    {
+      label: 'Bassoon',
+      value: 'Bassoon',
+    },
+    {
+      label: 'Clarinet',
+      value: 'Clarinet',
+    },
+    {
+      label: 'Commander',
+      value: 'Commander',
+    },
+    {
+      label: 'Drums',
+      value: 'Drums',
+    },
+    {
+      label: 'Euphonium',
+      value: 'Euphonium',
+    },
+    {
+      label: 'Flute',
+      value: 'Flute',
+    },
+    {
+      label: 'Guitar',
+      value: 'Guitar',
+    },
+    {
+      label: 'Horn',
+      value: 'Horn',
+    },
+    {
+      label: 'Oboe',
+      value: 'Oboe',
+    },
+    {
+      label: 'Piano',
+      value: 'Piano',
+    },
+    {
+      label: 'Saxophone',
+      value: 'Saxophone',
+    },
+    {
+      label: 'Trombone',
+      value: 'Trombone',
+    },
+    {
+      label: 'Trumpet',
+      value: 'Trumpet',
+    },
+    {
+      label: 'Tuba',
+      value: 'Tuba',
+    },
+    {
+      label: 'Vocalist',
+      value: 'Vocalist',
+    },
+  ]);
   const [visible, setVisible] = useState(false);
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -120,7 +266,7 @@ export default function Profile() {
   // updates user data in the users table in DB
   // saves data to asyncstorage
   const updateUserInDB = async (values) => {
-    registerForPushNotificationsAsync().then((token) =>
+    await registerForPushNotificationsAsync().then((token) =>
       setExpoPushToken(token)
     );
     await supabase
@@ -133,6 +279,8 @@ export default function Profile() {
         lastName: values.lastName,
         phone: values.phone,
         dod_id: values.dod_id,
+        primary_instrument: values.primary_instrument,
+        secondary_instrument: values.secondary_instrument,
         isAdmin: values.isAdmin,
         isLeader: values.isLeader,
         push_token: expoPushToken,
@@ -240,394 +388,473 @@ export default function Profile() {
   });
 
   return (
-    <Formik
-      initialValues={{
-        id: JSON.parse(userData).id,
-        civEmail: JSON.parse(userData).civEmail || '',
-        milEmail: JSON.parse(userData).milEmail || '',
-        rank: JSON.parse(userData).rank || '',
-        firstName: JSON.parse(userData).firstName || '',
-        lastName: JSON.parse(userData).lastName || '',
-        phone: JSON.parse(userData).phone || '',
-        dod_id: JSON.parse(userData).dod_id || '',
-        isAdmin: JSON.parse(userData).isAdmin,
-        isLeader: JSON.parse(userData).isLeader,
-      }}
-      onSubmit={(values) => {
-        updateUserInDB(values);
-        Alert.alert('Consider your profile edited.');
-      }}
-      validationSchema={ProfileEditSchema}
-      validateOnChange={false}
-      validateOnBlur={false}
-    >
-      {({ errors, handleChange, handleSubmit, values, setFieldValue }) => (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <KeyboardAvoidingView
-            behavior="padding"
-            keyboardVerticalOffset={100}
-            style={{
-              flex: 1,
-              backgroundColor: '#fff',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginTop: -50,
-            }}
-          >
-            <Image
-              style={styles.imageSmall}
-              source={require('../../assets/63rd.png')}
-            />
-            <Text style={styles.titleText}>Edit Profile</Text>
-            <Text style={styles.descriptionText}>
-              Want to make some changes?
-            </Text>
-            <View>
-              <TextInput
-                style={{ width: 300, backgroundColor: 'white', color: 'black' }}
-                contentStyle={{ color: 'black' }}
-                mode="outlined"
-                outlineColor="black"
-                activeOutlineColor="#5e5601"
-                label="Enter your civilian e-mail"
-                placeholder="E-mail must be on the unit roster"
-                placeholderTextColor="grey"
-                autoCapitalize="none"
-                value={values.civEmail}
-                onChangeText={handleChange('civEmail')}
-              />
-            </View>
-            {errors.civEmail && (
-              <Text style={styles.errorText}>{errors.civEmail}</Text>
-            )}
-            <View>
-              <TextInput
-                style={{ width: 300, backgroundColor: 'white', color: 'black' }}
-                contentStyle={{ color: 'black' }}
-                mode="outlined"
-                outlineColor="black"
-                activeOutlineColor="#5e5601"
-                label="Enter your military e-mail"
-                placeholder="Must be your current .mil e-mail"
-                placeholderTextColor="grey"
-                autoCapitalize="none"
-                value={values.milEmail}
-                onChangeText={handleChange('milEmail')}
-              />
-            </View>
-            {errors.milEmail && (
-              <Text style={styles.errorText}>{errors.milEmail}</Text>
-            )}
+    <ScrollView style={{ backgroundColor: 'white' }}>
+      <Formik
+        initialValues={{
+          id: JSON.parse(userData).id,
+          civEmail: JSON.parse(userData).civEmail || '',
+          milEmail: JSON.parse(userData).milEmail || '',
+          rank: JSON.parse(userData).rank || '',
+          firstName: JSON.parse(userData).firstName || '',
+          lastName: JSON.parse(userData).lastName || '',
+          phone: JSON.parse(userData).phone || '',
+          dod_id: JSON.parse(userData).dod_id || '',
+          primary_instrument: JSON.parse(userData).primary_instrument || '',
+          secondary_instrument: JSON.parse(userData).secondary_instrument || '',
+          isAdmin: JSON.parse(userData).isAdmin,
+          isLeader: JSON.parse(userData).isLeader,
+        }}
+        onSubmit={(values) => {
+          updateUserInDB(values);
+          Alert.alert('Consider your profile edited.');
+        }}
+        validationSchema={ProfileEditSchema}
+        validateOnChange={false}
+        validateOnBlur={false}
+      >
+        {({ errors, handleChange, handleSubmit, values, setFieldValue }) => (
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <KeyboardAvoidingView
+              behavior="padding"
+              keyboardVerticalOffset={100}
+              style={{
+                flex: 1,
+                backgroundColor: '#fff',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: 20,
+              }}
+            >
+              <Text style={styles.titleText}>Edit Profile</Text>
+              <Text style={styles.descriptionText}>
+                Want to make some changes?
+              </Text>
+              <View>
+                <TextInput
+                  style={{
+                    width: 300,
+                    backgroundColor: 'white',
+                    color: 'black',
+                  }}
+                  contentStyle={{ color: 'black' }}
+                  mode="outlined"
+                  outlineColor="black"
+                  activeOutlineColor="#5e5601"
+                  label="Enter your civilian e-mail"
+                  placeholder="E-mail must be on the unit roster"
+                  placeholderTextColor="grey"
+                  autoCapitalize="none"
+                  value={values.civEmail}
+                  onChangeText={handleChange('civEmail')}
+                />
+              </View>
+              {errors.civEmail && (
+                <Text style={styles.errorText}>{errors.civEmail}</Text>
+              )}
+              <View>
+                <TextInput
+                  style={{
+                    width: 300,
+                    backgroundColor: 'white',
+                    color: 'black',
+                  }}
+                  contentStyle={{ color: 'black' }}
+                  mode="outlined"
+                  outlineColor="black"
+                  activeOutlineColor="#5e5601"
+                  label="Enter your military e-mail"
+                  placeholder="Must be your current .mil e-mail"
+                  placeholderTextColor="grey"
+                  autoCapitalize="none"
+                  value={values.milEmail}
+                  onChangeText={handleChange('milEmail')}
+                />
+              </View>
+              {errors.milEmail && (
+                <Text style={styles.errorText}>{errors.milEmail}</Text>
+              )}
 
-            <View style={{ width: 300, backgroundColor: 'white', zIndex: 3 }}>
-              <DropDownPicker
-                open={open}
-                value={value}
-                items={ranks}
-                setOpen={setOpen}
-                setValue={setValue}
-                setItems={setRanks}
-                placeholder={JSON.parse(userData).rank || ''}
-                onSelectItem={(selectedItem) => {
-                  setFieldValue('rank', selectedItem.value);
+              <View style={{ width: 300, backgroundColor: 'white', zIndex: 3 }}>
+                <DropDownPicker
+                  open={open}
+                  value={value}
+                  items={ranks}
+                  setOpen={setOpen}
+                  setValue={setValue}
+                  setItems={setRanks}
+                  placeholder={JSON.parse(userData).rank || ''}
+                  onSelectItem={(selectedItem) => {
+                    setFieldValue('rank', selectedItem.value);
+                  }}
+                  style={{ marginTop: 5, borderRadius: 3 }}
+                  placeholderStyle={{ marginLeft: 5 }}
+                  selectedItemContainerStyle={{ marginLeft: 10 }}
+                  textStyle={{ marginLeft: 5, fontSize: 15 }}
+                  dropDownContainerStyle={{ position: 'relative', top: 0 }}
+                  listMode="SCROLLVIEW"
+                  scrollViewProps={{
+                    nestedScrollEnabled: true,
+                  }}
+                />
+              </View>
+              {errors.rank && (
+                <Text style={styles.errorText}>{errors.rank}</Text>
+              )}
+              <View>
+                <TextInput
+                  style={{ width: 300, backgroundColor: 'white' }}
+                  contentStyle={{ color: 'black' }}
+                  mode="outlined"
+                  outlineColor="black"
+                  activeOutlineColor="#5e5601"
+                  label="Enter your first name"
+                  placeholder="Enter your first name"
+                  placeholderTextColor="grey"
+                  autoCapitalize="none"
+                  value={values.firstName}
+                  onChangeText={handleChange('firstName')}
+                />
+              </View>
+              {errors.firstName && (
+                <Text style={styles.errorText}>{errors.firstName}</Text>
+              )}
+              <View>
+                <TextInput
+                  style={{ width: 300, backgroundColor: 'white' }}
+                  contentStyle={{ color: 'black' }}
+                  mode="outlined"
+                  outlineColor="black"
+                  activeOutlineColor="#5e5601"
+                  label="Enter your last name"
+                  placeholder="Enter your last name"
+                  placeholderTextColor="grey"
+                  autoCapitalize="none"
+                  value={values.lastName}
+                  onChangeText={handleChange('lastName')}
+                />
+              </View>
+              {errors.lastName && (
+                <Text style={styles.errorText}>{errors.lastName}</Text>
+              )}
+              <View>
+                <TextInput
+                  style={{ width: 300, backgroundColor: 'white' }}
+                  contentStyle={{ color: 'black' }}
+                  keyboardType="numbers-and-punctuation"
+                  mode="outlined"
+                  outlineColor="black"
+                  activeOutlineColor="#5e5601"
+                  label="Phone xxx-xxx-xxxx"
+                  placeholder="xxx-xxx-xxxx"
+                  placeholderTextColor="grey"
+                  autoCapitalize="none"
+                  value={values.phone}
+                  onChangeText={handleChange('phone')}
+                />
+              </View>
+              {errors.phone && (
+                <Text style={styles.errorText}>{errors.phone}</Text>
+              )}
+              <View>
+                <TextInput
+                  style={{ width: 300, backgroundColor: 'white' }}
+                  contentStyle={{ color: 'black' }}
+                  keyboardType="number-pad"
+                  mode="outlined"
+                  outlineColor="black"
+                  activeOutlineColor="#5e5601"
+                  label="DoD ID #"
+                  placeholder="DoD ID #"
+                  placeholderTextColor="grey"
+                  autoCapitalize="none"
+                  value={values.dod_id}
+                  onChangeText={handleChange('dod_id')}
+                />
+              </View>
+              {errors.dod_id && (
+                <Text style={styles.errorText}>{errors.dod_id}</Text>
+              )}
+              <View style={{ width: 300, backgroundColor: 'white', zIndex: 6 }}>
+                <DropDownPicker
+                  open={openPrimaryInstrument}
+                  value={valuePrimaryInstrument}
+                  items={primaryInstruments}
+                  setOpen={setOpenPrimaryInstrument}
+                  setValue={setValuePrimaryInstrument}
+                  setItems={setPrimaryInstruments}
+                  placeholder={
+                    JSON.parse(userData).primary_instrument ||
+                    'Select primary instrument'
+                  }
+                  onSelectItem={(selectedItem) => {
+                    setFieldValue('primary_instrument', selectedItem.value);
+                  }}
+                  style={{ marginTop: 5, borderRadius: 3 }}
+                  placeholderStyle={{ marginLeft: 5 }}
+                  selectedItemContainerStyle={{ marginLeft: 10 }}
+                  textStyle={{ marginLeft: 5, fontSize: 15 }}
+                  dropDownContainerStyle={{ position: 'relative', top: 0 }}
+                  listMode="SCROLLVIEW"
+                  scrollViewProps={{
+                    nestedScrollEnabled: true,
+                  }}
+                />
+              </View>
+              {errors.primary_instrument && (
+                <Text style={styles.errorText}>
+                  {errors.primary_instrument}
+                </Text>
+              )}
+              <View style={{ width: 300, backgroundColor: 'white', zIndex: 9 }}>
+                <DropDownPicker
+                  open={openSecondaryInstrument}
+                  value={valueSecondaryInstrument}
+                  items={secondaryInstruments}
+                  setOpen={setOpenSecondaryInstrument}
+                  setValue={setValueSecondaryInstrument}
+                  setItems={setSecondaryInstruments}
+                  placeholder={
+                    JSON.parse(userData).secondary_instrument ||
+                    'Select secondary instrument'
+                  }
+                  onSelectItem={(selectedItem) => {
+                    setFieldValue('secondary_instrument', selectedItem.value);
+                  }}
+                  style={{ marginTop: 5, borderRadius: 3 }}
+                  placeholderStyle={{ marginLeft: 5 }}
+                  selectedItemContainerStyle={{ marginLeft: 10 }}
+                  textStyle={{ marginLeft: 5, fontSize: 15 }}
+                  dropDownContainerStyle={{ position: 'relative', top: 0 }}
+                  listMode="SCROLLVIEW"
+                  scrollViewProps={{
+                    nestedScrollEnabled: true,
+                  }}
+                />
+              </View>
+              {errors.secondary_instrument && (
+                <Text style={styles.errorText}>
+                  {errors.secondary_instrument}
+                </Text>
+              )}
+              <Portal>
+                <Modal
+                  visible={visible}
+                  onDismiss={hideModal}
+                  dismissable={true}
+                  contentContainerStyle={{
+                    backgroundColor: 'white',
+                    height: 400,
+                    flex: 1,
+                  }}
+                >
+                  <Formik
+                    initialValues={{
+                      password: '',
+                      passwordConfirm: '',
+                    }}
+                    onSubmit={async (values) => {
+                      if (values.password !== values.passwordConfirm) {
+                        return Alert.alert('Your passwords do not match!');
+                      } else {
+                        const userTablePassword = Base64.encode(
+                          values.password
+                        );
+                        updateUserTablePasswordInDB(userTablePassword);
+                        const { data, error } = await supabase.auth.updateUser({
+                          password: values.passwordConfirm,
+                        });
+                        Alert.alert('Password successfully updated.');
+                        hideModal();
+                      }
+                    }}
+                    validationSchema={PasswordSchema}
+                    validateOnChange={false}
+                    validateOnBlur={false}
+                  >
+                    {({ errors, handleChange, handleSubmit, values }) => (
+                      <TouchableWithoutFeedback>
+                        <KeyboardAvoidingView
+                          behavior="padding"
+                          onPress={Keyboard.dismiss}
+                          keyboardVerticalOffset={10}
+                          style={{
+                            flex: 1,
+                            backgroundColor: '#fff',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginTop: -50,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontWeight: 'bold',
+                              marginBottom: 10,
+                              color: 'black',
+                              fontSize: 18,
+                            }}
+                          >
+                            Change Password
+                          </Text>
+                          <View>
+                            <TextInput
+                              style={{
+                                width: 300,
+                                backgroundColor: 'white',
+                                color: 'black',
+                                textAlign: 'auto',
+                              }}
+                              secureTextEntry={passwordVisibility}
+                              contentStyle={{ color: 'black' }}
+                              mode="outlined"
+                              outlineColor="black"
+                              activeOutlineColor="#5e5601"
+                              label="Enter new password"
+                              placeholder="Don't forget it"
+                              placeholderTextColor="grey"
+                              autoCapitalize="none"
+                              value={values.password}
+                              onChangeText={handleChange('password')}
+                              right={
+                                <TextInput.Icon
+                                  icon={passwordVisibility ? 'eye' : 'eye-off'}
+                                  iconColor={'black'}
+                                  onPress={() =>
+                                    setPasswordVisibility(!passwordVisibility)
+                                  }
+                                />
+                              }
+                            />
+                          </View>
+                          {errors.password && (
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: 'red',
+                                marginBottom: 2,
+                                marginTop: 2,
+                              }}
+                            >
+                              {errors.password}
+                            </Text>
+                          )}
+                          <View>
+                            <TextInput
+                              style={{
+                                width: 300,
+                                maxHeight: 100,
+                                backgroundColor: 'white',
+                                color: 'black',
+                                textAlign: 'auto',
+                              }}
+                              secureTextEntry={passwordConfirmVisibility}
+                              contentStyle={{ color: 'black' }}
+                              mode="outlined"
+                              outlineColor="black"
+                              activeOutlineColor="#5e5601"
+                              label="Confirm password"
+                              placeholder="Seriously, don't forget it"
+                              placeholderTextColor="grey"
+                              autoCapitalize="none"
+                              value={values.passwordConfirm}
+                              onChangeText={handleChange('passwordConfirm')}
+                              right={
+                                <TextInput.Icon
+                                  icon={
+                                    passwordConfirmVisibility
+                                      ? 'eye'
+                                      : 'eye-off'
+                                  }
+                                  iconColor={'black'}
+                                  onPress={() =>
+                                    setPasswordConfirmVisibility(
+                                      !passwordConfirmVisibility
+                                    )
+                                  }
+                                />
+                              }
+                            />
+                          </View>
+                          {errors.passwordConfirm && (
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: 'red',
+                                marginBottom: 2,
+                                marginTop: 2,
+                              }}
+                            >
+                              {errors.passwordConfirm}
+                            </Text>
+                          )}
+                          <Button
+                            mode="outlined"
+                            onPress={handleSubmit}
+                            title="Submit"
+                            labelStyle={{
+                              fontWeight: 'bold',
+                              color: '#d90532',
+                            }}
+                            style={{
+                              width: 250,
+                              borderColor: '#d90532',
+                              borderWidth: 2,
+                              marginTop: 10,
+                            }}
+                          >
+                            Change Password
+                          </Button>
+                          <TouchableOpacity onPress={hideModal}>
+                            <MaterialCommunityIcons
+                              style={{ marginTop: 20 }}
+                              name="close-circle-outline"
+                              size={24}
+                              color="black"
+                            />
+                          </TouchableOpacity>
+                        </KeyboardAvoidingView>
+                      </TouchableWithoutFeedback>
+                    )}
+                  </Formik>
+                </Modal>
+              </Portal>
+
+              <Button
+                mode="contained"
+                onPress={() => {
+                  showModal();
+                  console.log('pressed');
                 }}
-                style={{ marginTop: 5, borderRadius: 3 }}
-                placeholderStyle={{ marginLeft: 5 }}
-                selectedItemContainerStyle={{ marginLeft: 10 }}
-                textStyle={{ marginLeft: 5, fontSize: 15 }}
-                dropDownContainerStyle={{ position: 'relative', top: 0 }}
-                listMode="SCROLLVIEW"
-                scrollViewProps={{
-                  nestedScrollEnabled: true,
-                }}
-              />
-            </View>
-            {errors.rank && <Text style={styles.errorText}>{errors.rank}</Text>}
-            <View>
-              <TextInput
-                style={{ width: 300, backgroundColor: 'white' }}
-                contentStyle={{ color: 'black' }}
-                mode="outlined"
-                outlineColor="black"
-                activeOutlineColor="#5e5601"
-                label="Enter your first name"
-                placeholder="Enter your first name"
-                placeholderTextColor="grey"
-                autoCapitalize="none"
-                value={values.firstName}
-                onChangeText={handleChange('firstName')}
-              />
-            </View>
-            {errors.firstName && (
-              <Text style={styles.errorText}>{errors.firstName}</Text>
-            )}
-            <View>
-              <TextInput
-                style={{ width: 300, backgroundColor: 'white' }}
-                contentStyle={{ color: 'black' }}
-                mode="outlined"
-                outlineColor="black"
-                activeOutlineColor="#5e5601"
-                label="Enter your last name"
-                placeholder="Enter your last name"
-                placeholderTextColor="grey"
-                autoCapitalize="none"
-                value={values.lastName}
-                onChangeText={handleChange('lastName')}
-              />
-            </View>
-            {errors.lastName && (
-              <Text style={styles.errorText}>{errors.lastName}</Text>
-            )}
-            <View>
-              <TextInput
-                style={{ width: 300, backgroundColor: 'white' }}
-                contentStyle={{ color: 'black' }}
-                keyboardType="numbers-and-punctuation"
-                mode="outlined"
-                outlineColor="black"
-                activeOutlineColor="#5e5601"
-                label="Phone xxx-xxx-xxxx"
-                placeholder="xxx-xxx-xxxx"
-                placeholderTextColor="grey"
-                autoCapitalize="none"
-                value={values.phone}
-                onChangeText={handleChange('phone')}
-              />
-            </View>
-            {errors.phone && (
-              <Text style={styles.errorText}>{errors.phone}</Text>
-            )}
-            <View>
-              <TextInput
-                style={{ width: 300, backgroundColor: 'white' }}
-                contentStyle={{ color: 'black' }}
-                keyboardType="number-pad"
-                mode="outlined"
-                outlineColor="black"
-                activeOutlineColor="#5e5601"
-                label="DoD ID #"
-                placeholder="DoD ID #"
-                placeholderTextColor="grey"
-                autoCapitalize="none"
-                value={values.dod_id}
-                onChangeText={handleChange('dod_id')}
-              />
-            </View>
-            {errors.dod_id && (
-              <Text style={styles.errorText}>{errors.dod_id}</Text>
-            )}
-            <Portal>
-              <Modal
-                visible={visible}
-                onDismiss={hideModal}
-                dismissable={true}
-                contentContainerStyle={{
+                title="Submit"
+                labelStyle={{ fontWeight: 'bold', color: 'black' }}
+                style={{
                   backgroundColor: 'white',
-                  height: 400,
-                  flex: 1,
+                  width: 200,
+                  borderColor: 'black',
+                  borderWidth: 1,
+                  marginTop: 10,
                 }}
               >
-                <Formik
-                  initialValues={{
-                    password: '',
-                    passwordConfirm: '',
-                  }}
-                  onSubmit={async (values) => {
-                    if (values.password !== values.passwordConfirm) {
-                      return Alert.alert('Your passwords do not match!');
-                    } else {
-                      const userTablePassword = Base64.encode(values.password);
-                      updateUserTablePasswordInDB(userTablePassword);
-                      const { data, error } = await supabase.auth.updateUser({
-                        password: values.passwordConfirm,
-                      });
-                      Alert.alert('Password successfully updated.');
-                      hideModal();
-                    }
-                  }}
-                  validationSchema={PasswordSchema}
-                  validateOnChange={false}
-                  validateOnBlur={false}
-                >
-                  {({ errors, handleChange, handleSubmit, values }) => (
-                    <TouchableWithoutFeedback>
-                      <KeyboardAvoidingView
-                        behavior="padding"
-                        onPress={Keyboard.dismiss}
-                        keyboardVerticalOffset={10}
-                        style={{
-                          flex: 1,
-                          backgroundColor: '#fff',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          marginTop: -50,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontWeight: 'bold',
-                            marginBottom: 10,
-                            color: 'black',
-                            fontSize: 18,
-                          }}
-                        >
-                          Change Password
-                        </Text>
-                        <View>
-                          <TextInput
-                            style={{
-                              width: 300,
-                              backgroundColor: 'white',
-                              color: 'black',
-                              textAlign: 'auto',
-                            }}
-                            secureTextEntry={passwordVisibility}
-                            contentStyle={{ color: 'black' }}
-                            mode="outlined"
-                            outlineColor="black"
-                            activeOutlineColor="#5e5601"
-                            label="Enter new password"
-                            placeholder="Don't forget it"
-                            placeholderTextColor="grey"
-                            autoCapitalize="none"
-                            value={values.password}
-                            onChangeText={handleChange('password')}
-                            right={
-                              <TextInput.Icon
-                                icon={passwordVisibility ? 'eye' : 'eye-off'}
-                                iconColor={'black'}
-                                onPress={() =>
-                                  setPasswordVisibility(!passwordVisibility)
-                                }
-                              />
-                            }
-                          />
-                        </View>
-                        {errors.password && (
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              color: 'red',
-                              marginBottom: 2,
-                              marginTop: 2,
-                            }}
-                          >
-                            {errors.password}
-                          </Text>
-                        )}
-                        <View>
-                          <TextInput
-                            style={{
-                              width: 300,
-                              maxHeight: 100,
-                              backgroundColor: 'white',
-                              color: 'black',
-                              textAlign: 'auto',
-                            }}
-                            secureTextEntry={passwordConfirmVisibility}
-                            contentStyle={{ color: 'black' }}
-                            mode="outlined"
-                            outlineColor="black"
-                            activeOutlineColor="#5e5601"
-                            label="Confirm password"
-                            placeholder="Seriously, don't forget it"
-                            placeholderTextColor="grey"
-                            autoCapitalize="none"
-                            value={values.passwordConfirm}
-                            onChangeText={handleChange('passwordConfirm')}
-                            right={
-                              <TextInput.Icon
-                                icon={
-                                  passwordConfirmVisibility ? 'eye' : 'eye-off'
-                                }
-                                iconColor={'black'}
-                                onPress={() =>
-                                  setPasswordConfirmVisibility(
-                                    !passwordConfirmVisibility
-                                  )
-                                }
-                              />
-                            }
-                          />
-                        </View>
-                        {errors.passwordConfirm && (
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              color: 'red',
-                              marginBottom: 2,
-                              marginTop: 2,
-                            }}
-                          >
-                            {errors.passwordConfirm}
-                          </Text>
-                        )}
-                        <Button
-                          mode="outlined"
-                          onPress={handleSubmit}
-                          title="Submit"
-                          labelStyle={{ fontWeight: 'bold', color: '#d90532' }}
-                          style={{
-                            width: 250,
-                            borderColor: '#d90532',
-                            borderWidth: 2,
-                            marginTop: 10,
-                          }}
-                        >
-                          Change Password
-                        </Button>
-                        <TouchableOpacity onPress={hideModal}>
-                          <MaterialCommunityIcons
-                            style={{ marginTop: 20 }}
-                            name="close-circle-outline"
-                            size={24}
-                            color="black"
-                          />
-                        </TouchableOpacity>
-                      </KeyboardAvoidingView>
-                    </TouchableWithoutFeedback>
-                  )}
-                </Formik>
-              </Modal>
-            </Portal>
-
-            <Button
-              mode="contained"
-              onPress={() => {
-                showModal();
-                console.log('pressed');
-              }}
-              title="Submit"
-              labelStyle={{ fontWeight: 'bold', color: 'black' }}
-              style={{
-                backgroundColor: 'white',
-                width: 200,
-                borderColor: 'black',
-                borderWidth: 1,
-                marginTop: 10,
-              }}
-            >
-              Reset Password
-            </Button>
-            <Button
-              mode="contained"
-              onPress={handleSubmit}
-              title="Submit"
-              labelStyle={{ fontWeight: 'bold', color: 'white' }}
-              style={{
-                backgroundColor: '#5e5601',
-                width: 200,
-                borderColor: 'black',
-                borderWidth: 1,
-                marginTop: 10,
-              }}
-            >
-              Save Changes
-            </Button>
-          </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
-      )}
-    </Formik>
+                Reset Password
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleSubmit}
+                title="Submit"
+                labelStyle={{ fontWeight: 'bold', color: 'white' }}
+                style={{
+                  backgroundColor: '#5e5601',
+                  width: 200,
+                  borderColor: 'black',
+                  borderWidth: 1,
+                  marginTop: 10,
+                }}
+              >
+                Save Changes
+              </Button>
+            </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
+        )}
+      </Formik>
+    </ScrollView>
   );
 }

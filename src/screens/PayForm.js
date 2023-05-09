@@ -74,6 +74,15 @@ export default function PayForm() {
       value: 4,
     },
   ]);
+  const [modalData, setModalData] = useState('');
+  const [visibleEdit, setVisibleEdit] = useState(false);
+  const showModalEdit = () => setVisibleEdit(true);
+  const hideModalEdit = () => setVisibleEdit(false);
+
+  // this saves data to state to load into edit form
+  const saveToModalData = (data) => {
+    setModalData(data);
+  };
 
   // logs changed value of RST DATE calendar, saves to state
   const onChangeRstDate = (event, value) => {
@@ -246,6 +255,25 @@ export default function PayForm() {
         updateUserRmas();
       });
     Alert.alert('RMA added to your list.');
+  };
+
+  // edits rma info
+  // reloads users RMAs
+  const editRma = async (rma, rmaId) => {
+    await supabase
+      .from('rma')
+      .update({
+        rma_name: rma.rma_name,
+        rma_hours: rma.rma_hours,
+      })
+      .eq('id', rmaId)
+      .then((response) => {
+        if (response.status >= 300) {
+          Alert.alert(response.statusText);
+        }
+        updateUserRmas();
+      });
+    Alert.alert('RMA updated.');
   };
 
   // handles logic of pressing "+" icon
@@ -438,7 +466,7 @@ export default function PayForm() {
         keyboardOpeningTime={0}
         keyboardShouldPersistTaps="always"
         contentContainerStyle={{
-          backgroundColor: '#fff',
+          backgroundColor: 'white',
         }}
       >
         <View
@@ -701,6 +729,150 @@ export default function PayForm() {
             }}
           />
         </List.Accordion>
+        <Portal>
+          <Modal
+            visible={visibleEdit}
+            onDismiss={hideModalEdit}
+            contentContainerStyle={{
+              backgroundColor: 'white',
+              height: 500,
+              flex: 1,
+            }}
+          >
+            <Formik
+              initialValues={{
+                rma_name: modalData.rma_name,
+                rma_hours: modalData.rma_hours,
+              }}
+              onSubmit={async (values) => {
+                await editRma(values, modalData.id);
+                hideModalEdit();
+              }}
+              validateOnChange={false}
+              validateOnBlur={false}
+            >
+              {({ errors, handleChange, handleSubmit, values }) => (
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                  <KeyboardAwareScrollView
+                    enableOnAndroid={true}
+                    extraScrollHeight={80}
+                    keyboardOpeningTime={0}
+                    contentContainerStyle={{
+                      flex: 1,
+                      backgroundColor: '#fff',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: 'bold',
+                        marginBottom: 10,
+                        color: 'black',
+                        fontSize: 18,
+                      }}
+                    >
+                      Edit RMA
+                    </Text>
+
+                    <View>
+                      <TextInput
+                        style={{
+                          width: 300,
+                          backgroundColor: 'white',
+                          textAlign: 'center',
+                        }}
+                        contentStyle={{ color: 'black' }}
+                        multiline={true}
+                        numberOfLines={3}
+                        mode="outlined"
+                        outlineColor="black"
+                        activeOutlineColor="#5e5601"
+                        label="Add RMA"
+                        placeholder="Must be an army-related task"
+                        placeholderTextColor="grey"
+                        value={values.rma_name}
+                        onChangeText={handleChange('rma_name')}
+                        returnKeyType="next"
+                        onSubmitEditing={() => this.rmaHoursText.focus()}
+                      />
+                    </View>
+                    {errors.rma_name && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: 'red',
+                          marginBottom: 2,
+                          marginTop: 2,
+                        }}
+                      >
+                        {errors.rma_name}
+                      </Text>
+                    )}
+                    <View>
+                      <TextInput
+                        style={{
+                          width: 300,
+                          backgroundColor: 'white',
+                          textAlign: 'center',
+                        }}
+                        contentStyle={{ color: 'black' }}
+                        keyboardType="number-pad"
+                        mode="outlined"
+                        outlineColor="black"
+                        activeOutlineColor="#5e5601"
+                        label="# of hours"
+                        placeholder="# of hours"
+                        placeholderTextColor="grey"
+                        value={String(values.rma_hours)}
+                        onChangeText={handleChange('rma_hours')}
+                        ref={(input) => {
+                          this.rmaHoursText = input;
+                        }}
+                        returnKeyType="done"
+                      />
+                    </View>
+                    {errors.rma_hours && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: 'red',
+                          marginBottom: 2,
+                          marginTop: 2,
+                        }}
+                      >
+                        {errors.rma_hours}
+                      </Text>
+                    )}
+                    <Button
+                      mode="contained"
+                      onPress={handleSubmit}
+                      title="Submit"
+                      labelStyle={{ fontWeight: 'bold', color: 'white' }}
+                      style={{
+                        backgroundColor: '#5e5601',
+                        width: 200,
+                        borderColor: 'black',
+                        borderWidth: 1,
+                        marginTop: 10,
+                      }}
+                    >
+                      Edit Task
+                    </Button>
+                    <TouchableOpacity onPress={hideModalEdit}>
+                      <MaterialCommunityIcons
+                        style={{ marginTop: 20 }}
+                        name="close-circle-outline"
+                        size={24}
+                        color="black"
+                      />
+                    </TouchableOpacity>
+                  </KeyboardAwareScrollView>
+                </TouchableWithoutFeedback>
+              )}
+            </Formik>
+          </Modal>
+        </Portal>
         <List.Accordion
           style={{
             borderTopColor: 'black',
@@ -743,8 +915,8 @@ export default function PayForm() {
                       (ex. section tasks, platoon tasks, working on army things
                       in general)
                     </Text>{' '}
-                    that you can be reimbursed for.{' '}
-                    <Text style={{ fontWeight: '500' }}>
+                    that you can be reimbursed for. {'\n'}
+                    <Text style={{ fontWeight: '600' }}>
                       The Army does not want you working for free.
                     </Text>
                     {'\n'}
@@ -892,18 +1064,25 @@ export default function PayForm() {
                       }}
                       title={() => {
                         return (
-                          <Text
-                            style={{
-                              fontWeight: '400',
-                              color: 'black',
-                              fontSize: 14,
-                              textAlign: 'center',
-                              marginLeft: -80,
-                              marginRight: -8,
+                          <TouchableOpacity
+                            onPress={() => {
+                              saveToModalData(r);
+                              showModalEdit();
                             }}
                           >
-                            {r.rma_name}
-                          </Text>
+                            <Text
+                              style={{
+                                fontWeight: '400',
+                                color: 'black',
+                                fontSize: 14,
+                                textAlign: 'center',
+                                marginLeft: -80,
+                                marginRight: -8,
+                              }}
+                            >
+                              {r.rma_name}
+                            </Text>
+                          </TouchableOpacity>
                         );
                       }}
                       titleNumberOfLines={5}

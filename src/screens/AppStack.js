@@ -28,7 +28,8 @@ import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../hooks/supabase';
 import { Session } from '@supabase/supabase-js';
 import WebView from 'react-native-webview';
-import MissionPoll from './MissionPoll';
+import MissionPoll from './SendNotification';
+import SendNotification from './SendNotification';
 
 const Drawer = createDrawerNavigator();
 
@@ -127,9 +128,13 @@ function CustomDrawer(props) {
         </Text>
       </View>
       <DrawerItem
-        label="Home"
-        labelStyle={{ color: 'black', fontWeight: 'bold' }}
+        label="Announcements"
+        labelStyle={{
+          color: 'black',
+          fontWeight: 'bold',
+        }}
         style={{ color: 'black', marginBottom: -5 }}
+        activeTintColor="#554d07"
         icon={() => (
           <MaterialCommunityIcons name="home" size={24} color="black" />
         )}
@@ -299,7 +304,7 @@ const isAdmin = () => {
           drawerIcon: () => (
             <MaterialCommunityIcons name="home" size={24} color="black" />
           ),
-          drawerLabel: 'Home',
+          drawerLabel: 'Announcements',
           headerStyle: {
             height: 100,
           },
@@ -373,37 +378,6 @@ const isAdmin = () => {
         }}
       />
       <Drawer.Screen
-        name="Schedule"
-        component={Schedule}
-        options={{
-          drawerIcon: () => (
-            <MaterialCommunityIcons name="calendar" size={24} color="black" />
-          ),
-          drawerLabel: 'Schedule',
-          headerStyle: {
-            height: 100,
-            borderBottomWidth: 2,
-          },
-          headerTitle: '',
-          headerRight: () => {
-            return (
-              <TouchableOpacity
-                style={{ marginRight: 15 }}
-                onPress={() => {
-                  setScheduleWebViewValue(scheduleWebViewValue + 1);
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="refresh"
-                  size={24}
-                  color="black"
-                />
-              </TouchableOpacity>
-            );
-          },
-        }}
-      />
-      <Drawer.Screen
         name="NewsletterScreen"
         component={NewsletterScreen}
         options={{
@@ -426,6 +400,37 @@ const isAdmin = () => {
                 style={{ marginRight: 15 }}
                 onPress={() => {
                   setNewsletterWebViewValue(newsletterWebViewValue + 1);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="Calendar"
+        component={Schedule}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="calendar" size={24} color="black" />
+          ),
+          drawerLabel: 'Calendar',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  setScheduleWebViewValue(scheduleWebViewValue + 1);
                 }}
               >
                 <MaterialCommunityIcons
@@ -580,17 +585,17 @@ const isAdmin = () => {
         }}
       />
       <Drawer.Screen
-        name="Send Poll"
-        component={MissionPoll}
+        name="Send Notification"
+        component={SendNotification}
         options={{
           drawerIcon: () => (
             <MaterialCommunityIcons
-              name="clipboard-check-outline"
+              name="message-alert-outline"
               size={24}
               color="black"
             />
           ),
-          drawerLabel: 'Send Poll',
+          drawerLabel: 'Send Notification',
           headerStyle: {
             height: 100,
           },
@@ -674,7 +679,7 @@ const isLeader = () => {
           drawerIcon: () => (
             <MaterialCommunityIcons name="home" size={24} color="black" />
           ),
-          drawerLabel: 'Home',
+          drawerLabel: 'Announcements',
           headerStyle: {
             height: 100,
             borderBottomWidth: 2,
@@ -749,37 +754,6 @@ const isLeader = () => {
         }}
       />
       <Drawer.Screen
-        name="Schedule"
-        component={Schedule}
-        options={{
-          drawerIcon: () => (
-            <MaterialCommunityIcons name="calendar" size={24} color="black" />
-          ),
-          drawerLabel: 'Schedule',
-          headerStyle: {
-            height: 100,
-            borderBottomWidth: 2,
-          },
-          headerTitle: '',
-          headerRight: () => {
-            return (
-              <TouchableOpacity
-                style={{ marginRight: 15 }}
-                onPress={() => {
-                  setScheduleWebViewValue(scheduleWebViewValue + 1);
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="refresh"
-                  size={24}
-                  color="black"
-                />
-              </TouchableOpacity>
-            );
-          },
-        }}
-      />
-      <Drawer.Screen
         name="NewsletterScreen"
         component={NewsletterScreen}
         options={{
@@ -802,6 +776,37 @@ const isLeader = () => {
                 style={{ marginRight: 15 }}
                 onPress={() => {
                   setNewsletterWebViewValue(newsletterWebViewValue + 1);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="Calendar"
+        component={Schedule}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="calendar" size={24} color="black" />
+          ),
+          drawerLabel: 'Calendar',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  setScheduleWebViewValue(scheduleWebViewValue + 1);
                 }}
               >
                 <MaterialCommunityIcons
@@ -921,6 +926,40 @@ const isLeader = () => {
         }}
       />
       <Drawer.Screen
+        name="Send Notification"
+        component={SendNotification}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons
+              name="message-alert-outline"
+              size={24}
+              color="black"
+            />
+          ),
+          drawerLabel: 'Send Notification',
+          headerStyle: {
+            height: 100,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  reloadTasks();
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
         name="Profile"
         component={Profile}
         options={{
@@ -1001,7 +1040,7 @@ const isNotAdmin = () => {
           drawerIcon: () => (
             <MaterialCommunityIcons name="home" size={24} color="black" />
           ),
-          drawerLabel: 'Home',
+          drawerLabel: 'Announcements',
           headerStyle: {
             height: 100,
             borderBottomWidth: 2,
@@ -1076,37 +1115,6 @@ const isNotAdmin = () => {
         }}
       />
       <Drawer.Screen
-        name="Schedule"
-        component={Schedule}
-        options={{
-          drawerIcon: () => (
-            <MaterialCommunityIcons name="calendar" size={24} color="black" />
-          ),
-          drawerLabel: 'Schedule',
-          headerStyle: {
-            height: 100,
-            borderBottomWidth: 2,
-          },
-          headerTitle: '',
-          headerRight: () => {
-            return (
-              <TouchableOpacity
-                style={{ marginRight: 15 }}
-                onPress={() => {
-                  setScheduleWebViewValue(scheduleWebViewValue + 1);
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="refresh"
-                  size={24}
-                  color="black"
-                />
-              </TouchableOpacity>
-            );
-          },
-        }}
-      />
-      <Drawer.Screen
         name="NewsletterScreen"
         component={NewsletterScreen}
         options={{
@@ -1129,6 +1137,37 @@ const isNotAdmin = () => {
                 style={{ marginRight: 15 }}
                 onPress={() => {
                   setNewsletterWebViewValue(newsletterWebViewValue + 1);
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            );
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="Calendar"
+        component={Schedule}
+        options={{
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="calendar" size={24} color="black" />
+          ),
+          drawerLabel: 'Calendar',
+          headerStyle: {
+            height: 100,
+            borderBottomWidth: 2,
+          },
+          headerTitle: '',
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => {
+                  setScheduleWebViewValue(scheduleWebViewValue + 1);
                 }}
               >
                 <MaterialCommunityIcons

@@ -17,6 +17,7 @@ import {
 import { List, Portal, Modal, TextInput, Button } from 'react-native-paper';
 import UserContext from '../../hooks/UserContext';
 import * as All from '../components/RankImages';
+import * as Instruments from '../components/InstrumentImages';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -133,6 +134,151 @@ export default function Roster() {
       value: 'COL',
     },
   ]);
+  const [openPrimaryInstrument, setOpenPrimaryInstrument] = useState(false);
+  const [valuePrimaryInstrument, setValuePrimaryInstrument] = useState(null);
+  const [primaryInstruments, setPrimaryInstruments] = useState([
+    {
+      label: 'Engineer',
+      value: 'Engineer',
+    },
+    {
+      label: 'Bass',
+      value: 'Bass',
+    },
+    {
+      label: 'Bassoon',
+      value: 'Bassoon',
+    },
+    {
+      label: 'Clarinet',
+      value: 'Clarinet',
+    },
+    {
+      label: 'Commander',
+      value: 'Commander',
+    },
+    {
+      label: 'Drums',
+      value: 'Drums',
+    },
+    {
+      label: 'Euphonium',
+      value: 'Euphonium',
+    },
+    {
+      label: 'Flute',
+      value: 'Flute',
+    },
+    {
+      label: 'Guitar',
+      value: 'Guitar',
+    },
+    {
+      label: 'Horn',
+      value: 'Horn',
+    },
+    {
+      label: 'Oboe',
+      value: 'Oboe',
+    },
+    {
+      label: 'Piano',
+      value: 'Piano',
+    },
+    {
+      label: 'Saxophone',
+      value: 'Saxophone',
+    },
+    {
+      label: 'Trombone',
+      value: 'Trombone',
+    },
+    {
+      label: 'Trumpet',
+      value: 'Trumpet',
+    },
+    {
+      label: 'Tuba',
+      value: 'Tuba',
+    },
+    {
+      label: 'Vocalist',
+      value: 'Vocalist',
+    },
+  ]);
+  const [openSecondaryInstrument, setOpenSecondaryInstrument] = useState(false);
+  const [valueSecondaryInstrument, setValueSecondaryInstrument] =
+    useState(null);
+  const [secondaryInstruments, setSecondaryInstruments] = useState([
+    {
+      label: 'Engineer',
+      value: 'Engineer',
+    },
+    {
+      label: 'Bass',
+      value: 'Bass',
+    },
+    {
+      label: 'Bassoon',
+      value: 'Bassoon',
+    },
+    {
+      label: 'Clarinet',
+      value: 'Clarinet',
+    },
+    {
+      label: 'Commander',
+      value: 'Commander',
+    },
+    {
+      label: 'Drums',
+      value: 'Drums',
+    },
+    {
+      label: 'Euphonium',
+      value: 'Euphonium',
+    },
+    {
+      label: 'Flute',
+      value: 'Flute',
+    },
+    {
+      label: 'Guitar',
+      value: 'Guitar',
+    },
+    {
+      label: 'Horn',
+      value: 'Horn',
+    },
+    {
+      label: 'Oboe',
+      value: 'Oboe',
+    },
+    {
+      label: 'Piano',
+      value: 'Piano',
+    },
+    {
+      label: 'Saxophone',
+      value: 'Saxophone',
+    },
+    {
+      label: 'Trombone',
+      value: 'Trombone',
+    },
+    {
+      label: 'Trumpet',
+      value: 'Trumpet',
+    },
+    {
+      label: 'Tuba',
+      value: 'Tuba',
+    },
+    {
+      label: 'Vocalist',
+      value: 'Vocalist',
+    },
+  ]);
   const [visibleEdit, setVisibleEdit] = useState(false);
   const [modalData, setModalData] = useState('');
   const showModalEdit = () => setVisibleEdit(true);
@@ -186,12 +332,13 @@ export default function Roster() {
         lastName: values.lastName,
         phone: values.phone,
         dod_id: values.dod_id,
+        primary_instrument: values.primary_instrument || null,
+        secondary_instrument: values.secondary_instrument || null,
         isAdmin: values.isAdmin,
         isLeader: values.isLeader,
       })
       .eq('id', values.id)
       .then((response) => {
-        console.log(response);
         if (response.error) {
           Alert.alert(response.error);
         }
@@ -211,6 +358,11 @@ export default function Roster() {
     } else {
       return All[`${rank}`];
     }
+  };
+
+  // sets image of rank left os user name
+  const setInstrument = (instrument) => {
+    return Instruments[`${instrument}`];
   };
 
   const userSchema = Yup.object().shape({
@@ -275,9 +427,8 @@ export default function Roster() {
             marginTop: -15,
           }}
         >
-          This is the current unit contact roster. Use this to reach out to
-          Soldiers if you have questions, but also remember to follow the chain
-          of command and use the appropriate channels.
+          This is the current unit contact roster. Press on each Soldier to
+          display their DoD ID# and contact information.
         </List.Subheader>
         <Portal>
           <Modal
@@ -299,6 +450,8 @@ export default function Roster() {
                 lastName: modalData.lastName,
                 phone: modalData.phone,
                 dod_id: modalData.dod_id,
+                primary_instrument: modalData.primary_instrument,
+                secondary_instrument: modalData.secondary_instrument,
                 isAdmin: modalData.isAdmin,
                 isLeader: modalData.isLeader,
               }}
@@ -323,7 +476,6 @@ export default function Roster() {
                     extraScrollHeight={80}
                     keyboardOpeningTime={0}
                     contentContainerStyle={{
-                      flex: 1,
                       backgroundColor: '#fff',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -333,6 +485,7 @@ export default function Roster() {
                       style={{
                         fontWeight: 'bold',
                         marginBottom: 10,
+                        marginTop: 20,
                         color: 'black',
                         fontSize: 18,
                       }}
@@ -554,6 +707,92 @@ export default function Roster() {
                       style={{
                         width: 300,
                         backgroundColor: 'white',
+                        zIndex: 6,
+                      }}
+                    >
+                      <DropDownPicker
+                        open={openPrimaryInstrument}
+                        value={valuePrimaryInstrument}
+                        items={primaryInstruments}
+                        setOpen={setOpenPrimaryInstrument}
+                        setValue={setValuePrimaryInstrument}
+                        setItems={setPrimaryInstruments}
+                        placeholder={
+                          modalData.primary_instrument ||
+                          'Select primary instrument'
+                        }
+                        onSelectItem={(selectedItem) => {
+                          setFieldValue(
+                            'primary_instrument',
+                            selectedItem.value
+                          );
+                        }}
+                        style={{ marginTop: 5, borderRadius: 3 }}
+                        placeholderStyle={{ marginLeft: 5 }}
+                        selectedItemContainerStyle={{ marginLeft: 10 }}
+                        textStyle={{ marginLeft: 5, fontSize: 15 }}
+                        dropDownContainerStyle={{
+                          position: 'relative',
+                          top: 0,
+                        }}
+                        listMode="SCROLLVIEW"
+                        scrollViewProps={{
+                          nestedScrollEnabled: true,
+                        }}
+                      />
+                    </View>
+                    {errors.primary_instrument && (
+                      <Text style={styles.errorText}>
+                        {errors.primary_instrument}
+                      </Text>
+                    )}
+                    <View
+                      style={{
+                        width: 300,
+                        backgroundColor: 'white',
+                        zIndex: 9,
+                      }}
+                    >
+                      <DropDownPicker
+                        open={openSecondaryInstrument}
+                        value={valueSecondaryInstrument}
+                        items={secondaryInstruments}
+                        setOpen={setOpenSecondaryInstrument}
+                        setValue={setValueSecondaryInstrument}
+                        setItems={setSecondaryInstruments}
+                        placeholder={
+                          modalData.secondary_instrument ||
+                          'Select secondary instrument'
+                        }
+                        onSelectItem={(selectedItem) => {
+                          setFieldValue(
+                            'secondary_instrument',
+                            selectedItem.value
+                          );
+                        }}
+                        style={{ marginTop: 5, borderRadius: 3 }}
+                        placeholderStyle={{ marginLeft: 5 }}
+                        selectedItemContainerStyle={{ marginLeft: 10 }}
+                        textStyle={{ marginLeft: 5, fontSize: 15 }}
+                        dropDownContainerStyle={{
+                          position: 'relative',
+                          top: 0,
+                        }}
+                        listMode="SCROLLVIEW"
+                        scrollViewProps={{
+                          nestedScrollEnabled: true,
+                        }}
+                      />
+                    </View>
+                    {errors.secondary_instrument && (
+                      <Text style={styles.errorText}>
+                        {errors.secondary_instrument}
+                      </Text>
+                    )}
+                    <View
+                      style={{
+                        width: 300,
+                        backgroundColor: 'white',
                         zIndex: 300,
                       }}
                     >
@@ -651,7 +890,7 @@ export default function Roster() {
                     </Button>
                     <TouchableOpacity onPress={hideModalEdit}>
                       <MaterialCommunityIcons
-                        style={{ marginTop: 20 }}
+                        style={{ marginTop: 20, marginBottom: 20 }}
                         name="close-circle-outline"
                         size={24}
                         color="black"
@@ -671,7 +910,11 @@ export default function Roster() {
               borderWidth: StyleSheet.hairlineWidth,
               backgroundColor: 'white',
             }}
-            titleStyle={{ color: 'black', fontWeight: 500 }}
+            titleStyle={{
+              color: 'black',
+              fontWeight: 500,
+              fontSize: 15,
+            }}
             left={() => (
               <Image
                 source={setImg(s.rank)}
@@ -681,6 +924,34 @@ export default function Roster() {
                   height: 35,
                 }}
               />
+            )}
+            right={() => (
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  gap: 4,
+                }}
+              >
+                <Image
+                  source={setInstrument(s.primary_instrument)}
+                  style={{
+                    resizeMode: 'contain',
+                    width: 30,
+                    height: 30,
+                  }}
+                />
+                {s.secondary_instrument != null ? (
+                  <Image
+                    source={setInstrument(s.secondary_instrument)}
+                    style={{
+                      resizeMode: 'contain',
+                      width: 30,
+                      height: 30,
+                    }}
+                  />
+                ) : null}
+              </View>
             )}
             title={s.rank + ' ' + s.firstName + ' ' + s.lastName}
           >
